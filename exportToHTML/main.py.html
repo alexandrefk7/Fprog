@@ -1,0 +1,68 @@
+<html>
+<head>
+<title>main.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #7a7e85;}
+.s4 { color: #2aacb8;}
+.s5 { color: #6aab73;}
+</style>
+</head>
+<body bgcolor="#191a1c">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+main.py</font>
+</center></td></tr></table>
+<pre><span class="s0">from </span><span class="s1">Projectiles </span><span class="s0">import </span><span class="s1">Projectile</span><span class="s2">, </span><span class="s1">ShotTracker</span>
+<span class="s0">from </span><span class="s1">entities </span><span class="s0">import </span><span class="s2">*</span>
+
+<span class="s3">#define um valor placeholder para as variáveis</span>
+<span class="s1">angle</span><span class="s2">, </span><span class="s1">vel0</span><span class="s2">, </span><span class="s1">h0</span><span class="s2">, </span><span class="s1">interval</span><span class="s2">=</span><span class="s4">20</span><span class="s2">, </span><span class="s4">40</span><span class="s2">, </span><span class="s4">48</span><span class="s2">, </span><span class="s4">0.1</span>
+<span class="s1">win</span><span class="s2">=</span><span class="s1">GraphWin</span><span class="s2">(</span><span class="s5">&quot;Basketball Game&quot;</span><span class="s2">, </span><span class="s4">400</span><span class="s2">, </span><span class="s4">400</span><span class="s2">, </span><span class="s1">autoflush</span><span class="s2">=</span><span class="s0">False</span><span class="s2">)</span>
+<span class="s1">win</span><span class="s2">.</span><span class="s1">setCoords</span><span class="s2">(-</span><span class="s4">10</span><span class="s2">, -</span><span class="s4">10</span><span class="s2">, </span><span class="s4">210</span><span class="s2">, </span><span class="s4">155</span><span class="s2">)</span>
+
+<span class="s3">#cria a linha de base</span>
+<span class="s1">create_line</span><span class="s2">(</span><span class="s1">win</span><span class="s2">)</span>
+
+<span class="s3">#cria o cesto</span>
+<span class="s1">create_basket</span><span class="s2">(</span><span class="s1">win</span><span class="s2">)</span>
+
+<span class="s3">#cria o contador</span>
+<span class="s1">scoreboard</span><span class="s2">=</span><span class="s1">ScoreBoard</span><span class="s2">(</span><span class="s1">win</span><span class="s2">)</span>
+<span class="s3">#cria uma bola</span>
+<span class="s1">ball</span><span class="s2">=</span><span class="s1">Projectile</span><span class="s2">(</span><span class="s1">angle</span><span class="s2">, </span><span class="s1">vel0</span><span class="s2">, </span><span class="s4">48</span><span class="s2">)</span>
+<span class="s3">#cria o jogador</span>
+<span class="s1">player </span><span class="s2">= </span><span class="s1">StickMan</span><span class="s2">(</span><span class="s1">win</span><span class="s2">)</span>
+<span class="s3">#cria uma janela para inputar os valores</span>
+<span class="s0">while </span><span class="s1">win</span><span class="s2">.</span><span class="s1">isOpen</span><span class="s2">():</span>
+
+    <span class="s1">v_window</span><span class="s2">=</span><span class="s1">InputDialog</span><span class="s2">(</span><span class="s1">angle</span><span class="s2">, </span><span class="s1">vel0</span><span class="s2">)</span>
+    <span class="s1">option</span><span class="s2">=</span><span class="s1">v_window</span><span class="s2">.</span><span class="s1">interaction</span><span class="s2">()</span>
+    <span class="s1">v_window</span><span class="s2">.</span><span class="s1">close</span><span class="s2">()</span>
+    <span class="s0">if </span><span class="s1">option</span><span class="s2">==</span><span class="s5">&quot;Quit&quot;</span><span class="s2">:</span>
+        <span class="s0">break</span>
+    <span class="s0">elif </span><span class="s1">option</span><span class="s2">==</span><span class="s5">&quot;Fire!&quot;</span><span class="s2">:</span>
+        <span class="s1">angle</span><span class="s2">, </span><span class="s1">vel0</span><span class="s2">=</span><span class="s1">v_window</span><span class="s2">.</span><span class="s1">collect_values</span><span class="s2">()</span>
+
+    <span class="s1">tracker </span><span class="s2">= </span><span class="s1">ShotTracker</span><span class="s2">(</span><span class="s1">angle</span><span class="s2">, </span><span class="s1">vel0</span><span class="s2">, </span><span class="s1">h0</span><span class="s2">, </span><span class="s1">win</span><span class="s2">)</span>
+    <span class="s1">player</span><span class="s2">.</span><span class="s1">shoot</span><span class="s2">(</span><span class="s1">win</span><span class="s2">)</span>
+
+    <span class="s1">marcou_ponto</span><span class="s2">=</span><span class="s0">False</span>
+    <span class="s0">while </span><span class="s4">0</span><span class="s2">&lt;=</span><span class="s1">tracker</span><span class="s2">.</span><span class="s1">gety</span><span class="s2">() </span><span class="s0">and </span><span class="s2">-</span><span class="s4">10</span><span class="s2">&lt;=</span><span class="s1">tracker</span><span class="s2">.</span><span class="s1">getx</span><span class="s2">()&lt;=</span><span class="s4">220</span><span class="s2">:</span>
+        <span class="s1">tracker</span><span class="s2">.</span><span class="s1">update_tracker</span><span class="s2">(</span><span class="s4">0.1</span><span class="s2">)</span>
+        <span class="s0">if not </span><span class="s1">marcou_ponto </span><span class="s0">and </span><span class="s4">160 </span><span class="s2">&lt; </span><span class="s1">tracker</span><span class="s2">.</span><span class="s1">getx</span><span class="s2">() &lt; </span><span class="s4">200 </span><span class="s0">and </span><span class="s4">90 </span><span class="s2">&lt;= </span><span class="s1">tracker</span><span class="s2">.</span><span class="s1">gety</span><span class="s2">() &lt;= </span><span class="s4">110</span><span class="s2">:</span>
+            <span class="s1">scoreboard</span><span class="s2">.</span><span class="s1">update_score</span><span class="s2">()</span>
+            <span class="s1">marcou_ponto</span><span class="s2">=</span><span class="s0">True</span>
+        <span class="s1">update</span><span class="s2">(</span><span class="s4">25</span><span class="s2">)</span>
+    <span class="s1">tracker</span><span class="s2">.</span><span class="s1">destroy</span><span class="s2">()</span>
+
+
+<span class="s3">#win.update()</span>
+    <span class="s0">if </span><span class="s1">win</span><span class="s2">.</span><span class="s1">checkMouse</span><span class="s2">():</span>
+        <span class="s1">win</span><span class="s2">.</span><span class="s1">close</span><span class="s2">()</span></pre>
+</body>
+</html>
