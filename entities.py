@@ -114,9 +114,14 @@ class InputDialog:
     def close(self):
         self.win.close()
 
-
-
-
+def parabola(left_side_xcord, win):
+    while left_side_xcord < 20:
+        point=Point(left_side_xcord, left_side_xcord**2)
+        nextx_coord=left_side_xcord+0.2
+        next_point=Point(nextx_coord, nextx_coord**2)
+        line=Line(point, next_point)
+        line.draw(win)
+        left_side_xcord+=0.2
 
 
 class StickMan:

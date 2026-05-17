@@ -95,14 +95,21 @@ class Roller:
         derivative=2*xpoint
         self.xvel=derivative*cos(atan(derivative))
         self.yvel=derivative*sin(atan(derivative))
-        self.ypos=xpoint**2
         self.xpos=xpoint
+        self.ypos=self.xpos**2
+
     
     def update(self, interval):
+        self.ypos=self.xpos**2
         self.xpos = self.xpos + interval * self.xvel
         yvel1 = self.yvel - 9.8 * interval
-        self.ypos = self.ypos + interval* (self.yvel + yvel1) / 2.0
+    
         self.yvel = yvel1
+
+    def getx(self):
+        return self.xpos
+    def gety(self):
+        return self.ypos
 
 class Tracker(Roller):
     def __init__(self,xpoint, win):
@@ -113,11 +120,11 @@ class Tracker(Roller):
         self.marker.draw(win)
 
 
+
     def update_tracker(self, interval):
         self.update(interval)
         center = self.marker.getCenter()
         dx = self.getx() - center.getX()
         dy = self.gety() - center.getY()
         self.marker.move(dx, dy)
-        
         
