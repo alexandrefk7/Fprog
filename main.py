@@ -5,7 +5,6 @@ from entities import *
 angle, vel0, h0, interval=20, 40, 48, 0.1
 win=GraphWin("Basketball Game", 400, 400, autoflush=False)
 win.setCoords(-10, -10, 210, 155)
-
 #cria a linha de base
 create_line(win)
 
