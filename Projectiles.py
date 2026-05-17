@@ -92,19 +92,27 @@ class Launcher:
 
 class Roller:
     def __init__(self, xpoint):
-        derivative=2*xpoint
-        self.xvel=derivative*cos(atan(derivative))
-        self.yvel=derivative*sin(atan(derivative))
         self.xpos=xpoint
         self.ypos=self.xpos**2
-
+        self.tan_vel=0
+        self.xvel=0
+        self.yvel=0
     
     def update(self, interval):
+        #derivada da posição 
+        d1=2*self.xpos
+        #valor do angulo tangente obtido através do declive da derivada (2x)
+        angle=atan(d1)
+        #acelaração tangencial (projeta-se a a.g na trajetória usando o ângulo de inclinação)
+        tan_accer=-9.8*sin(angle)
+        #calcula a variação da velocidade tangencial
+        self.tan_vel=self.tan_vel+tan_accer*interval
+        #projeta a velocidade tangencial no eixo dos xx
+        self.xvel=self.tan_vel*cos(angle)
+        #soma a velocidade á posição do x
+        self.xpos=self.xpos+interval*self.xvel
+        #y fica depende de x porque fica sempre forçado a seguir a restrição y=x*2
         self.ypos=self.xpos**2
-        self.xpos = self.xpos + interval * self.xvel
-        yvel1 = self.yvel - 9.8 * interval
-    
-        self.yvel = yvel1
 
     def getx(self):
         return self.xpos
@@ -114,7 +122,7 @@ class Roller:
 class Tracker(Roller):
     def __init__(self,xpoint, win):
         super().__init__(xpoint)
-        self.marker=Circle(Point(self.getx(), self.gety()), 6)
+        self.marker=Circle(Point(self.getx(), self.gety()), 1)
         self.marker.setFill("red")
         self.marker.setOutline("black")
         self.marker.draw(win)
