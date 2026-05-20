@@ -76,7 +76,7 @@ class Launcher:
 
 
     def increase_angle(self, amount,win):
-        """ alterar o ângulo em amt graus """
+        #alterar o ângulo em amt graus 
 
         self.angle = self.angle + radians(amount)
         self.redraw(win)
@@ -93,14 +93,16 @@ class Launcher:
 class Roller:
     def __init__(self, xpoint):
         self.xpos=xpoint
-        self.ypos=self.xpos**2
+        self.scalar=0.1134
+        self.route=self.scalar*xpoint**2 + 1.05
+        self.ypos=self.route
         self.tan_vel=0
         self.xvel=0
         self.yvel=0
     
     def update(self, interval):
         #derivada da posição 
-        d1=2*self.xpos
+        d1=2*self.scalar*self.xpos
         #valor do angulo tangente obtido através do declive da derivada (2x)
         angle=atan(d1)
         #acelaração tangencial (projeta-se a a.g na trajetória usando o ângulo de inclinação)
@@ -112,7 +114,7 @@ class Roller:
         #soma a velocidade á posição do x
         self.xpos=self.xpos+interval*self.xvel
         #y fica depende de x porque fica sempre forçado a seguir a restrição y=x*2
-        self.ypos=self.xpos**2
+        self.ypos = self.scalar * (self.xpos**2)+1.05
 
     def getx(self):
         return self.xpos
@@ -136,3 +138,48 @@ class Tracker(Roller):
         dy = self.gety() - center.getY()
         self.marker.move(dx, dy)
         
+class Moveable:
+    def __init__(self, xpoint, ypoint="placeholder", angle="placeholder", vel0="placeholder"):
+        self.scalar=0.1134
+        if angle!="placeholder" and vel0!="placeholder":
+            self.on_route=False 
+            self.angle = radians(angle)
+            self.vel = vel0
+            self.xvel = self.vel * cos(self.angle)
+            self.yvel = self.vel * sin(self.angle)
+            self.xpos=23
+            self.ypos=ypoint
+            self.tan_vel=0
+        else:
+            self.xpos=xpoint
+            self.tan_vel=0
+            self.xvel=0
+            self.yvel=0
+            if ypoint!="placeholder":
+                self.ypos=self.scalar*xpoint**2 + 1.05
+                self.on_route=True
+            else:
+                self.ypos=ypoint
+                self.on_route=False
+    def update(self, interval):
+        if self.on_route:
+            #derivada da posição 
+            d1=2*self.scalar*self.xpos
+            #valor do angulo tangente obtido através do declive da derivada (2x)
+            angle=atan(d1)
+            #acelaração tangencial (projeta-se a a.g na trajetória usando o ângulo de inclinação)
+            tan_accer=-9.8*sin(angle)
+            #calcula a variação da velocidade tangencial
+            self.tan_vel=self.tan_vel+tan_accer*interval
+            #projeta a velocidade tangencial no eixo dos xx
+            self.xvel=self.tan_vel*cos(angle)
+            #soma a velocidade á posição do x
+            self.xpos=self.xpos+interval*self.xvel
+            #y fica depende de x porque fica sempre forçado a seguir a restrição y=x*2
+            self.ypos = self.scalar * (self.xpos**2)+1.05
+        else:
+            self.xpos = self.xpos + interval * self.xvel
+            yvel1 = self.yvel - 9.8 * interval
+            self.ypos = self.ypos + interval* (self.yvel + yvel1) / 2.0
+            self.yvel = yvel1
+    

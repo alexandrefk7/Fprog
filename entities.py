@@ -116,10 +116,11 @@ class InputDialog:
 
 def parabola(left_side_xcord, win):
     mirror=left_side_xcord*-1
+    scalar=0.1
     while left_side_xcord < mirror:
-        point=Point(left_side_xcord, left_side_xcord**2)
+        point=Point(left_side_xcord, scalar*left_side_xcord**2)
         nextx_coord=left_side_xcord+0.2
-        next_point=Point(nextx_coord, nextx_coord**2)
+        next_point=Point(nextx_coord, scalar*nextx_coord**2)
         line=Line(point, next_point)
         line.draw(win)
         left_side_xcord+=0.2
