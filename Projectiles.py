@@ -137,32 +137,43 @@ class Tracker(Roller):
         dx = self.getx() - center.getX()
         dy = self.gety() - center.getY()
         self.marker.move(dx, dy)
-        
+
+#classe que junta tudo meu deus       
+placeholder=0
 class Moveable:
-    def __init__(self, xpoint, ypoint="placeholder", angle="placeholder", vel0="placeholder"):
+    def __init__(self, xpoint, ypoint=placeholder, angle=placeholder, vel0=placeholder):
         self.scalar=0.1134
-        if angle!="placeholder" and vel0!="placeholder":
+
+        #avalaia se tem valores inputados do angle e vel0, se tiver então age como o projetil do basquete
+        if angle!=placeholder and vel0!=placeholder:
             self.on_route=False 
             self.angle = radians(angle)
             self.vel = vel0
             self.xvel = self.vel * cos(self.angle)
             self.yvel = self.vel * sin(self.angle)
-            self.xpos=23
+            self.xpos=xpoint
             self.ypos=ypoint
             self.tan_vel=0
+        #age coo um roller, podendo surgir na linha (if,) ou no ar (else)
         else:
             self.xpos=xpoint
             self.tan_vel=0
             self.xvel=0
             self.yvel=0
-            if ypoint!="placeholder":
+            if ypoint==placeholder:
                 self.ypos=self.scalar*xpoint**2 + 1.05
                 self.on_route=True
             else:
                 self.ypos=ypoint
                 self.on_route=False
     def update(self, interval):
-        if self.on_route:
+        if self.on_route==False:
+            self.xpos = self.xpos + interval * self.xvel
+            yvel1 = self.yvel - 9.8 * interval
+            self.ypos = self.ypos + interval* (self.yvel + yvel1) / 2.0
+            self.yvel = yvel1
+            
+        else:
             #derivada da posição 
             d1=2*self.scalar*self.xpos
             #valor do angulo tangente obtido através do declive da derivada (2x)
@@ -177,9 +188,28 @@ class Moveable:
             self.xpos=self.xpos+interval*self.xvel
             #y fica depende de x porque fica sempre forçado a seguir a restrição y=x*2
             self.ypos = self.scalar * (self.xpos**2)+1.05
-        else:
-            self.xpos = self.xpos + interval * self.xvel
-            yvel1 = self.yvel - 9.8 * interval
-            self.ypos = self.ypos + interval* (self.yvel + yvel1) / 2.0
-            self.yvel = yvel1
-    
+           
+    def getx(self):
+        return self.xpos
+    def gety(self):
+        return self.ypos
+
+class ShotTracker1(Moveable):
+    def __init__(self, xpoint, win, color, outline, r,   ypoint=placeholder, angle=placeholder, vel0=placeholder):
+        super().__init__(xpoint, ypoint, angle, vel0)
+        self.marker=Circle(Point(self.getx(), self.gety()), r)
+        self.marker.setFill(color)
+        self.marker.setOutline(outline)
+        self.marker.draw(win)
+
+    def update_tracker(self, interval):
+        self.update(interval)
+        center = self.marker.getCenter()
+        dx = self.getx() - center.getX()
+        dy = self.gety() - center.getY()
+        self.marker.move(dx, dy)
+
+    def destroy(self):
+        self.marker.undraw()
+
+         

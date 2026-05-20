@@ -1,4 +1,4 @@
-from Projectiles import Projectile, ShotTracker
+from Projectiles import *
 from entities import *
 
 #define um valor placeholder para as variáveis
@@ -10,11 +10,12 @@ create_line(win)
 
 #cria o cesto
 create_basket(win)
-
+stickman_hand_height=48
+stickman_right_disloc=23
 #cria o contador
 scoreboard=ScoreBoard(win)
 #cria uma bola
-ball=Projectile(angle, vel0, 48)
+ball=Moveable(angle, vel0, stickman_hand_height)
 #cria o jogador
 player = StickMan(win)
 #cria uma janela para inputar os valores
@@ -28,7 +29,7 @@ while win.isOpen():
     elif option=="Fire!":
         angle, vel0=v_window.collect_values()
 
-    tracker = ShotTracker(angle, vel0, h0, win)
+    tracker = ShotTracker1(xpoint=stickman_right_disloc, win=win, color="orange", outline="black", r=6, ypoint=stickman_hand_height, angle=angle, vel0=vel0)
     player.shoot(win)
 
     marcou_ponto=False
