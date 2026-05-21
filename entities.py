@@ -1,6 +1,6 @@
 from graphics import*
 import random
-#cia a linha com medições de distância
+#Cria a linha com medições de distância (Cenário 1)
 def create_line(window):
     big_line=Line(Point(-10, 0), Point(210, 0))
     big_line.draw(window)
@@ -9,7 +9,7 @@ def create_line(window):
         line.draw(window)
         mark = Text(Point(val, -5), f"{val}")
         mark.draw(window)
-#Cria um cesto
+#Cria um cesto (Cenário 1)
 def create_basket(win):
     left_side=Circle(Point(160, 100), 3)
     left_side.draw(win)
@@ -18,6 +18,7 @@ def create_basket(win):
     line=Line(Point(160, 103), Point(200, 103))
     line.draw(win)
 
+#Classe que cria e atualiza uma determinada pontuação (Cenário 1 e 3)
 class ScoreBoard:
     def __init__(self, win):
         self.congratulations=["Nice!", "You're Killing it", "9/10 dentists recommend your plays", "ON FIRE!", "KOBE"]
@@ -25,6 +26,7 @@ class ScoreBoard:
         self.score_number=0
         self.scoreboard=Text(Point(15, 150), f"Score: {self.score_number}")
         self.scoreboard.draw(win)
+#Atualiza o valor da pontuação 
     def update_score(self):
         self.score_number+=2
         self.scoreboard.setText(f"Score: {self.score_number}")

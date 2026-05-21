@@ -1,6 +1,8 @@
 from math import cos, sin, radians, degrees, atan
 from graphics import *
 import random
+
+#classe de projetil abandonda (apagar)
 class Projectile:
     def __init__(self,angle, vel0, h0):
         random_factor=random.randint(1,10)*0.35
@@ -24,7 +26,7 @@ class Projectile:
 
 
 
-
+#classe rejeitada do Shotracker
 class ShotTracker(Projectile):
     def __init__(self, angle, vel0, h0, win):
         super().__init__(angle, vel0, h0)
@@ -43,7 +45,7 @@ class ShotTracker(Projectile):
 
     def destroy(self):
         self.marker.undraw()
-
+#classe que permite usar as teclas para alterar a trajetória e o ângulo
 class Launcher:
     def __init__(self, angle,vel0, h0, win):
         super().__init__(angle,vel0,h0)
@@ -89,7 +91,7 @@ class Launcher:
         return ShotTracker(win,degrees(self.angle), self.vel, 48)
 
 
-
+#classe rejeitada para o rolador 
 class Roller:
     def __init__(self, xpoint):
         self.xpos=xpoint
@@ -120,7 +122,7 @@ class Roller:
         return self.xpos
     def gety(self):
         return self.ypos
-
+#classe rejitada do tracker
 class Tracker(Roller):
     def __init__(self,xpoint, win):
         super().__init__(xpoint)
@@ -174,12 +176,12 @@ class Moveable:
             yvel1 = self.yvel - 9.8 * interval
             self.ypos = self.ypos + interval* (self.yvel + yvel1) / 2.0
             self.yvel = yvel1
-            #coordenada_y__contacto=self.scalar*self.xpos**2 + 1.05
+            coordenada_y__contacto=self.scalar*self.xpos**2 + 1.05
 
-            # if self.ypos<coordenada_y__contacto:
-            #     self.ypos=coordenada_y__contacto
-            #     self.velovidade_final_queda=-self.yvel
-            #     self.on_route=True
+            if self.ypos<coordenada_y__contacto:
+                self.ypos=coordenada_y__contacto
+                self.velocidade_final_queda=-self.yvel
+                self.on_route=True
             
         else:
             #self.tan_vel=self.velovidade_final_queda
@@ -192,7 +194,7 @@ class Moveable:
             #calcula a variação da velocidade tangencial
             self.tan_vel= self.tan_vel + tan_accer*interval
             #projeta a velocidade tangencial no eixo dos xx
-            self.xvel= self.tan_vel*cos(angle)
+            self.xvel= (self.tan_vel + self.velocidade_final_queda)*cos(angle)
             #soma a velocidade á posição do x
             self.xpos= self.xpos+ interval*self.xvel
             #y fica depende de x porque fica sempre forçado a seguir a restrição y=x*2
@@ -204,7 +206,7 @@ class Moveable:
         return self.ypos
     # def energy_fleeting(self):
     #    if 
-
+#Classe geral que desenha tudo
 class ShotTracker1(Moveable):
     def __init__(self, xpoint, win, color, outline, r,   ypoint=placeholder, angle=placeholder, vel0=placeholder):
         super().__init__(xpoint, ypoint, angle, vel0)
