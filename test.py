@@ -7,7 +7,7 @@ win2=GraphWin(title="Title", width=500, height=500, autoflush=False)
 win2.setCoords(-15, -5, 15, 20)
 parabola(-12, win2)
 ball=Moveable(xpoint=-10)
-tracker=ShotTracker1(xpoint=-10,ypoint=20, win=win2, color="red", outline="black", r=1)
+tracker=ShotTracker1(xpoint=-10, win=win2, color="red", outline="black", r=1)
  
 
 

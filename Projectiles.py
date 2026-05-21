@@ -147,7 +147,6 @@ class Moveable:
 
         #avalaia se tem valores inputados do angle e vel0, se tiver então age como o projetil do basquete
         if angle!=placeholder and vel0!=placeholder:
-            self.on_route=False 
             self.angle = radians(angle)
             self.vel = vel0
             self.xvel = self.vel * cos(self.angle)
@@ -155,7 +154,8 @@ class Moveable:
             self.xpos=xpoint
             self.ypos=ypoint
             self.tan_vel=0
-        #age coo um roller, podendo surgir na linha (if,) ou no ar (else)
+            self.on_route=False 
+        #age coo um roller, podendo surgir na linha (if) ou no ar (else)
         else:
             self.xpos=xpoint
             self.tan_vel=0
@@ -174,12 +174,12 @@ class Moveable:
             yvel1 = self.yvel - 9.8 * interval
             self.ypos = self.ypos + interval* (self.yvel + yvel1) / 2.0
             self.yvel = yvel1
-            coordenada_y__contacto=self.scalar*self.xpos**2 + 1.05
+            #coordenada_y__contacto=self.scalar*self.xpos**2 + 1.05
 
-            if self.ypos<coordenada_y__contacto:
-                self.ypos=coordenada_y__contacto
-                #self.velovidade_final_queda=-self.yvel
-                self.on_route=True
+            # if self.ypos<coordenada_y__contacto:
+            #     self.ypos=coordenada_y__contacto
+            #     self.velovidade_final_queda=-self.yvel
+            #     self.on_route=True
             
         else:
             #self.tan_vel=self.velovidade_final_queda

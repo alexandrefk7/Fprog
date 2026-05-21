@@ -10,6 +10,7 @@ create_line(win)
 
 #cria o cesto
 create_basket(win)
+#posição da bola
 stickman_hand_height=48
 stickman_right_disloc=23
 #cria o contador
@@ -35,11 +36,18 @@ while win.isOpen():
     marcou_ponto=False
     while 0<=tracker.gety() and -10<=tracker.getx()<=220:
         tracker.update_tracker(0.1)
+        #verifica se marca ponto
         if not marcou_ponto and 160 < tracker.getx() < 200 and 90 <= tracker.gety() <= 110:
             scoreboard.update_score()
             marcou_ponto=True
+            scoreboard.unecessary_cheers(win)
+
+
+
         update(25)
     tracker.destroy()
+    player.clear_arms()
+    player.create_arms(win)
 
 
 #win.update()

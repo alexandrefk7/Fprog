@@ -1,4 +1,5 @@
 from graphics import*
+import random
 #cia a linha com medições de distância
 def create_line(window):
     big_line=Line(Point(-10, 0), Point(210, 0))
@@ -19,17 +20,26 @@ def create_basket(win):
 
 class ScoreBoard:
     def __init__(self, win):
-        self.message = Text(Point(100, 100), "BOA!")
+        self.congratulations=["Nice!", "You're Killing it", "9/10 dentists recommend your plays", "ON FIRE!", "KOBE"]
+        self.depreciations=["Oh well!", "Can't win them all", "The door is over there...", "*crowd throws tomatoes at you..."]
         self.score_number=0
         self.scoreboard=Text(Point(15, 150), f"Score: {self.score_number}")
         self.scoreboard.draw(win)
     def update_score(self):
         self.score_number+=2
         self.scoreboard.setText(f"Score: {self.score_number}")
-    def flash(self, win):
-        self.message.setSize(20)
-        self.message.draw(win)
+    def unecessary_cheers(self, win):
+        self.message = Text(Point(100, 100), f"{self.congratulations[random.randint(0, (len(self.congratulations)-1))]}")
         self.message.undraw()
+        self.message.draw(win)
+    def necessary_depreciations(self, win):
+        self.message = Text(Point(100, 100), f"{self.depreciations[random.randint(0, (len(self.congratulations)-1))]}")
+        self.message.undraw()
+        self.message.draw(win)
+
+        
+
+    
 #cria a classe botão
 class Button:
     def __init__(self, window, center, width, height, label):
@@ -129,12 +139,6 @@ def parabola(left_side_xcord, win):
 class StickMan:
     def __init__(self, win):
 
-        #Bola
-        self.ball = Circle(Point(23, 48), 6)
-        self.ball.draw(win)
-        self.ball.setFill("orange")
-        self.ball.setOutline("black")
-
         #Cabeça e tronco
         self.head=Circle(Point(5, 60), 8)
         self.head.setWidth(2)
@@ -149,6 +153,19 @@ class StickMan:
         self.lleg=Line(Point(5, 30), Point(-5, 0))
         self.lleg.setWidth(2)
         self.lleg.draw(win)
+
+        self.create_arms(win)
+
+
+    def create_arms(self, win):
+        #cria bola
+
+        #Bola
+        self.ball = Circle(Point(23, 48), 6)
+        self.ball.draw(win)
+        self.ball.setFill("orange")
+        self.ball.setOutline("black")
+
         #primeiro braço(trás, esqeurda)
         self.larm1=Line(Point(5, 50), Point(15, 40))
         self.larm1.setWidth(2)
@@ -171,6 +188,7 @@ class StickMan:
         self.rarm2.undraw()
         self.larm1.undraw()
         self.larm2.undraw()
+
     def shoot(self, win):
         self.clear_arms()
 
