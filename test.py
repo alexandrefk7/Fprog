@@ -11,6 +11,7 @@ ball=Moveable(xpoint=-5, ypoint=15)
 tracker=ShotTracker1(xpoint=-5,ypoint=15, win=win2, color="red", outline="black", r=1)
  
 
+
  
 
 while win2.isOpen():

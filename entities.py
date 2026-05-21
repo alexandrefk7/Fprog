@@ -18,6 +18,7 @@ def create_basket(win):
     line=Line(Point(160, 103), Point(200, 103))
     line.draw(win)
 
+
 #Classe que cria e atualiza uma determinada pontuação (Cenário 1 e 3)
 class ScoreBoard:
     def __init__(self, win):

@@ -200,6 +200,7 @@ class Moveable:
             #y fica depende de x porque fica sempre forçado a seguir a restrição y=x*2
             self.ypos = self.scalar * (self.xpos**2)+1.05
            
+           
     def getx(self):
         return self.xpos
     def gety(self):
