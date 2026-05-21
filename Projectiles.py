@@ -142,6 +142,7 @@ class Tracker(Roller):
 placeholder=0
 class Moveable:
     def __init__(self, xpoint, ypoint=placeholder, angle=placeholder, vel0=placeholder):
+        #escalar que altera a dilatação da parábola invisível
         self.scalar=0.1134
 
         #avalaia se tem valores inputados do angle e vel0, se tiver então age como o projetil do basquete
@@ -160,6 +161,7 @@ class Moveable:
             self.tan_vel=0
             self.xvel=0
             self.yvel=0
+            self.velovidade_final_queda=0
             if ypoint==placeholder:
                 self.ypos=self.scalar*xpoint**2 + 1.05
                 self.on_route=True
@@ -172,8 +174,15 @@ class Moveable:
             yvel1 = self.yvel - 9.8 * interval
             self.ypos = self.ypos + interval* (self.yvel + yvel1) / 2.0
             self.yvel = yvel1
+            coordenada_y__contacto=self.scalar*self.xpos**2 + 1.05
+
+            if self.ypos<coordenada_y__contacto:
+                self.ypos=coordenada_y__contacto
+                #self.velovidade_final_queda=-self.yvel
+                self.on_route=True
             
         else:
+            #self.tan_vel=self.velovidade_final_queda
             #derivada da posição 
             d1=2*self.scalar*self.xpos
             #valor do angulo tangente obtido através do declive da derivada (2x)
@@ -181,11 +190,11 @@ class Moveable:
             #acelaração tangencial (projeta-se a a.g na trajetória usando o ângulo de inclinação)
             tan_accer=-9.8*sin(angle)
             #calcula a variação da velocidade tangencial
-            self.tan_vel=self.tan_vel+tan_accer*interval
+            self.tan_vel= self.tan_vel + tan_accer*interval
             #projeta a velocidade tangencial no eixo dos xx
-            self.xvel=self.tan_vel*cos(angle)
+            self.xvel= self.tan_vel*cos(angle)
             #soma a velocidade á posição do x
-            self.xpos=self.xpos+interval*self.xvel
+            self.xpos= self.xpos+ interval*self.xvel
             #y fica depende de x porque fica sempre forçado a seguir a restrição y=x*2
             self.ypos = self.scalar * (self.xpos**2)+1.05
            
@@ -193,6 +202,8 @@ class Moveable:
         return self.xpos
     def gety(self):
         return self.ypos
+    # def energy_fleeting(self):
+    #     if 
 
 class ShotTracker1(Moveable):
     def __init__(self, xpoint, win, color, outline, r,   ypoint=placeholder, angle=placeholder, vel0=placeholder):
