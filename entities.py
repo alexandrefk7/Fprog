@@ -39,7 +39,7 @@ class ScoreBoard:
 
         
 
-    
+     
 #cria a classe botão
 class Button:
     def __init__(self, window, center, width, height, label):

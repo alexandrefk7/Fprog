@@ -10,7 +10,7 @@ ball=Moveable(xpoint=-10)
 tracker=ShotTracker1(xpoint=-10, win=win2, color="red", outline="black", r=1)
  
 
-
+ 
 
 while win2.isOpen():
     ball.update(0.05)

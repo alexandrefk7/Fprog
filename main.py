@@ -17,7 +17,7 @@ stickman_right_disloc=23
 scoreboard=ScoreBoard(win)
 #cria uma bola
 ball=Moveable(angle, vel0, stickman_hand_height)
-#cria o jogador
+#cria o jogador 
 player = StickMan(win)
 #cria uma janela para inputar os valores
 while win.isOpen():

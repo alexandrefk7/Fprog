@@ -203,7 +203,7 @@ class Moveable:
     def gety(self):
         return self.ypos
     # def energy_fleeting(self):
-    #     if 
+    #    if 
 
 class ShotTracker1(Moveable):
     def __init__(self, xpoint, win, color, outline, r,   ypoint=placeholder, angle=placeholder, vel0=placeholder):
