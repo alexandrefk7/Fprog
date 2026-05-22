@@ -72,7 +72,7 @@ class Button:
 
         self.label.setFill("darkgrey")
         self.rect.setWidth(1)
-        self.active = 0
+        self.active = False
 #verifica se o botão foi pressionado
     def clicked(self, p):
 
