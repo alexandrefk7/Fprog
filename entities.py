@@ -1,42 +1,90 @@
 from graphics import*
 import random
-#Cria a linha com medições de distância (Cenário 1)
-def create_line(window):
-    big_line=Line(Point(-10, 0), Point(210, 0))
-    big_line.draw(window)
-    for val in range(0, 210, 50):
-        line = Line(Point(val, 0), Point(val, 4))
-        line.draw(window)
-        mark = Text(Point(val, -5), f"{val}")
-        mark.draw(window)
-#Cria um cesto (Cenário 1)
-def create_basket(win):
-    left_side=Circle(Point(160, 100), 3)
-    left_side.draw(win)
-    right_side=Circle(Point(200, 100), 3)
-    right_side.draw(win)
-    line=Line(Point(160, 103), Point(200, 103))
-    line.draw(win)
+import time
 
+#Cria a linha com medições de distância (Cenário 1)
+class Static:
+    def __init__(self,center, shape, color, outline, window, offset=0, radius=0):
+        self.center=center
+        self.shape=shape
+        self.radius=radius
+        self.color=color
+        self.outline=outline
+        self.win=window
+        self.offset=offset
+        self.constructor()
+    def create_balls(self):
+            self.ball = Circle(self.center, self.radius)
+            self.ball.setFill(self.color)
+            self.ball.setOutline(self.outline)
+            self.ball.draw(self.win)
+
+    def create_line(self):
+            big_line=Line(Point(-10, 0), Point(210, 0))
+            big_line.draw(self.win)
+            for val in range(0, 210, 50):
+                line = Line(Point(val, 0), Point(val, 4))
+                line.draw(self.win)
+                mark = Text(Point(val, -5), f"{val}")
+                mark.draw(self.win)
+
+    def create_basket(self):
+            left_ball=Static(self.center, "circle", self.color, self.outline, self.win,radius=self.radius)
+            right_ball=Static(Point(self.center.getX()+self.offset, self.center.getY()), "circle", self.color, self.outline, self.win, radius=self.radius)
+            left_ball.create_balls()
+            right_ball.create_balls()
+            line=Line(Point(self.center.getX(), self.center.getY()+self.radius), Point(self.center.getX()+self.offset, self.center.getY()+self.radius))
+            line.draw(self.win)
+
+    def constructor(self):
+        if self.shape=="circle" and self.radius>0 and self.offset==0:
+            self.create_balls()
+        elif self.shape=="line" and self.radius==0 and self.offset==0:
+            self.create_line()
+        elif self.shape=="basket" and self.radius>0 and self.offset>0:
+            self.create_basket()
+
+
+    #Cria um cesto (Cenário 1)
+    # def create_basket(ball1, ball2, height, win):
+    #     left_side=Circle(Point(ball1, height), 3)
+    #     left_side.draw(win)
+    #     right_side=Circle(Point(ball2, height), 3)
+    #     right_side.draw(win)
+    #     line=Line(Point(ball1, height+3), Point(ball2, height+3))
+    #     line.draw(win)
+
+def parabola(left_side_xcord, win):
+    mirror=left_side_xcord*-1
+    scalar=0.1
+    while left_side_xcord < mirror:
+        point=Point(left_side_xcord, scalar*left_side_xcord**2)
+        nextx_coord=left_side_xcord+0.2
+        next_point=Point(nextx_coord, scalar*nextx_coord**2)
+        line=Line(point, next_point)
+        line.draw(win)
+        left_side_xcord+=0.2
 
 #Classe que cria e atualiza uma determinada pontuação (Cenário 1 e 3)
 class ScoreBoard:
     def __init__(self, win):
-        self.congratulations=["Nice!", "You're Killing it", "9/10 dentists recommend your plays", "ON FIRE!", "KOBE"]
+        self.congratulations=["Nice!", "You're Killing it!", "9/10 dentists recommend your plays!", "ON FIRE!", "KOBE!"]
         self.depreciations=["Oh well!", "Can't win them all", "The door is over there...", "*crowd throws tomatoes at you..."]
         self.score_number=0
         self.scoreboard=Text(Point(15, 150), f"Score: {self.score_number}")
         self.scoreboard.draw(win)
+        self.message=Text(Point(100, 140), "Test your skills!")
+        self.message.draw(win)
 #Atualiza o valor da pontuação 
     def update_score(self):
         self.score_number+=2
         self.scoreboard.setText(f"Score: {self.score_number}")
     def unecessary_cheers(self, win):
-        self.message = Text(Point(100, 100), f"{self.congratulations[random.randint(0, (len(self.congratulations)-1))]}")
+        self.message.setText(f"{self.congratulations[random.randint(0, (len(self.congratulations)-1))]}")
         self.message.undraw()
         self.message.draw(win)
     def necessary_depreciations(self, win):
-        self.message = Text(Point(100, 100), f"{self.depreciations[random.randint(0, (len(self.congratulations)-1))]}")
+        self.message.setText(f"{self.depreciations[random.randint(0, (len(self.depreciations)-1))]}")
         self.message.undraw()
         self.message.draw(win)
 
@@ -98,13 +146,8 @@ class InputDialog:
         self.vel.draw(window)
         self.vel.setText(str(vel0))
 
-        # Text(Point(1, 3), "Altura").draw(window)
-        # self.height = Entry(Point(3, 3), 5)
-        # self.height.draw(window)
-        # self.height.setText(str(height))
 
-
-        self.shoot = Button(window, Point(1, 4.5), 1.25, .5, "Disparar!")
+        self.shoot = Button(window, Point(1, 4.5), 1.25, .5, "Atirar!")
         self.shoot.activate()
         self.quit = Button(window, Point(3, 4.5), 1.25, .5, "Sair")
         self.quit.activate()
@@ -114,9 +157,16 @@ class InputDialog:
         while True:
             pt=self.win.getMouse()
             if self.quit.clicked(pt):
+                self.quit.deactivate()
+                self.win.update()      
+                time.sleep(0.3)         
                 return "Quit"
             elif self.shoot.clicked(pt):
+                self.shoot.deactivate()
+                self.win.update()      
+                time.sleep(0.1)         
                 return "Fire!"
+            self.win.update()
 #Guarda os valores do utilizador
     def collect_values(self):
         angle=float(self.angle.getText())
@@ -127,16 +177,7 @@ class InputDialog:
     def close(self):
         self.win.close()
 
-def parabola(left_side_xcord, win):
-    mirror=left_side_xcord*-1
-    scalar=0.1
-    while left_side_xcord < mirror:
-        point=Point(left_side_xcord, scalar*left_side_xcord**2)
-        nextx_coord=left_side_xcord+0.2
-        next_point=Point(nextx_coord, scalar*nextx_coord**2)
-        line=Line(point, next_point)
-        line.draw(win)
-        left_side_xcord+=0.2
+
 
 
 class StickMan:

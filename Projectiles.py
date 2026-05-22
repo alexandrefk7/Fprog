@@ -1,4 +1,4 @@
-from math import cos, sin, radians, degrees, atan
+from math import cos, sin, radians, degrees, atan, sqrt
 from graphics import *
 import random
 
@@ -156,6 +156,7 @@ class Moveable:
             self.xpos=xpoint
             self.ypos=ypoint
             self.tan_vel=0
+            self.in_air=True
             self.on_route=False 
         #age coo um roller, podendo surgir na linha (if) ou no ar (else)
         else:
@@ -164,6 +165,7 @@ class Moveable:
             self.xvel=0
             self.yvel=0
             self.velovidade_final_queda=0
+            self.in_air=False
             if ypoint==placeholder:
                 self.ypos=self.scalar*xpoint**2 + 1.05
                 self.on_route=True
@@ -176,12 +178,18 @@ class Moveable:
             yvel1 = self.yvel - 9.8 * interval
             self.ypos = self.ypos + interval* (self.yvel + yvel1) / 2.0
             self.yvel = yvel1
-            coordenada_y__contacto=self.scalar*self.xpos**2 + 1.05
+            
 
-            if self.ypos<coordenada_y__contacto:
-                self.ypos=coordenada_y__contacto
-                self.velocidade_final_queda=-self.yvel
-                self.on_route=True
+            if self.in_air:
+                if self.ypos<0:
+                    self.xvel, self.yvel=0,0
+
+            else:
+                coordenada_y__contacto=self.scalar*self.xpos**2 + 1.05
+                if self.ypos<coordenada_y__contacto:
+                    self.ypos=coordenada_y__contacto
+                    self.velocidade_final_queda=-self.yvel
+                    self.on_route=True
             
         else:
             #self.tan_vel=self.velovidade_final_queda
@@ -200,6 +208,17 @@ class Moveable:
             #y fica depende de x porque fica sempre forçado a seguir a restrição y=x*2
             self.ypos = self.scalar * (self.xpos**2)+1.05
            
+    def collision_with_static(self, particle, surface):
+        self.center = particle.getCenter()
+        self.radius = particle.getRadius()
+        self.surface = surface
+        dx= self.center.getX() - self.surface.getCenter().getX()
+        dy= self.center.getY() - self.surface.getCenter().getY()
+        distance_between_bodies=sqrt(dx**2 + dy**2)
+        if distance_between_bodies<=self.radius:
+            print("yepi")
+        
+
 
     def getx(self):
         return self.xpos
