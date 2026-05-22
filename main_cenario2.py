@@ -39,17 +39,29 @@ class Roller:
         return self.ypos
 
 class RollerTracker(Roller):
+    R = 0.6  # raio da bola
+
+    def _centro(self):
+        # Desloca o centro da bola pelo raio na direção da normal à parábola
+        slope = 2 * SCALAR * self.xpos
+        length = sqrt(1 + slope**2)
+        cx = self.xpos - self.R * slope / length
+        cy = self.ypos + self.R / length
+        return cx, cy
+
     def __init__(self, xpos, win):
         super().__init__(xpos)
-        self.marker = Circle(Point(self.getx(), self.gety()), 0.6)
+        cx, cy = self._centro()
+        self.marker = Circle(Point(cx, cy), self.R)
         self.marker.setFill("orange")
         self.marker.setOutline("black")
         self.marker.draw(win)
 
     def update_tracker(self, interval):
         self.update(interval)
+        cx, cy = self._centro()
         center = self.marker.getCenter()
-        self.marker.move(self.getx() - center.getX(), self.gety() - center.getY())
+        self.marker.move(cx - center.getX(), cy - center.getY())
 
     def destroy(self):
         self.marker.undraw()
@@ -121,12 +133,20 @@ def cenario2():
         h = min(h, 14.0)
         x_start = -(h / SCALAR) ** 0.5  # começa no lado esquerdo
 
+        data_inicio = time.ctime()
+        tempos, xs, ys = [], [], []
+        t = 0
+
         tracker = RollerTracker(x_start, win)
         prev_xpos = x_start
         a_correr = True
         sair = False
 
         while a_correr and win.isOpen():
+            tempos.append(round(t, 2))
+            xs.append(round(tracker.getx(), 2))
+            ys.append(round(tracker.gety(), 2))
+
             prev_xpos = tracker.getx()
             tracker.update_tracker(0.05)
             curr_xpos = tracker.getx()
@@ -140,6 +160,7 @@ def cenario2():
             if energy_h < 0.02:
                 a_correr = False
 
+            t += 0.05
             update(25)
 
             chk = win.checkMouse()
@@ -148,6 +169,7 @@ def cenario2():
                 sair = True
 
         tracker.destroy()
+        trajetoria.janela_gravar(data_inicio, tempos, xs, ys)
         if sair:
             break
         msg.setText("Clique para nova simulacao")
