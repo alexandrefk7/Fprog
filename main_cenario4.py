@@ -189,33 +189,40 @@ def cenario2():
 
 # ─── Cenário 4 ────────────────────────────────────────────────────────────────
 def cenario4():
-    BALL_R      = 6
-    ARO_R       = 3
-    WALL_X      = 205   # parede da direita
-    PAREDE_X    = 100   # parede do meio
-    PORTAL_CY   = 70    # centro vertical do portal azul
-    PORTAL_LARG = 20    # largura do portal azul
+    BALL_R = 6
+    ARO_R = 3
+    WALL_X = 205  # parede da direita
+    PAREDE_X = 100  # parede do meio
+    PORTAL_LARG = 20  # largura dos portais
+    PASSO = 5  # unidades por tecla
+
+    # Portal azul: começa desalinhado
+    # Portal laranja: começa fora do alvo
+    p1_cy = 50
+    p2_cx, p2_cy = 130, 85
 
     angle, vel0, h0 = 35, 40, 48
     win = GraphWin("Basketball Game - Portais", 400, 400, autoflush=False)
     win.setCoords(-10, -10, 210, 155)
-    win.master.geometry("+50+100")
+
     create_line(win)
     create_basket(win)
     Line(Point(WALL_X, -10), Point(WALL_X, 155)).draw(win)
 
-    # Parede do meio com gap visual onde está o portal azul
+    # Parede do meio com gap que acompanha o portal azul
     meia = PORTAL_LARG / 2
-    Line(Point(PAREDE_X, -10),            Point(PAREDE_X, PORTAL_CY - meia)).draw(win)
-    Line(Point(PAREDE_X, PORTAL_CY + meia), Point(PAREDE_X, 155)).draw(win)
-    Text(Point(55, 148), "Azul -> Laranja").draw(win)
+    linha_muro_baixo = Line(Point(PAREDE_X, -10), Point(PAREDE_X, p1_cy - meia))
+    linha_muro_cima = Line(Point(PAREDE_X, p1_cy + meia), Point(PAREDE_X, 155))
+    linha_muro_baixo.draw(win)
+    linha_muro_cima.draw(win)
 
-    # Portal azul : bola entra indo para a direita (esquerda da parede)
-    # Portal laranja: inclinado 45 graus, saida a apontar para o cesto
+    Text(Point(45, 148), "Cima/Baixo: portal azul").draw(win)
+    Text(Point(155, 148), "Esq/Dir: portal laranja").draw(win)
+
     portais = ParDePortais(
         win,
-        Point(PAREDE_X, PORTAL_CY), (1,  0),
-        Point(150, 72),              (1,  1),
+        Point(PAREDE_X, p1_cy), (1, 0),
+        Point(p2_cx, p2_cy), (1, 1),
         largura=PORTAL_LARG
     )
 
@@ -223,16 +230,62 @@ def cenario4():
     player = StickMan(win)
 
     while win.isOpen():
+
+        # --- 1. FASE DE AJUSTE (Movida para antes do tiro) ---
+        msg = Text(Point(100, -6), "Setas: ajustar portais | ESPAÇO: confirmar e atirar")
+        msg.setFill("blue")
+        msg.draw(win)
+
+        while win.isOpen():
+            tecla = win.checkKey()
+
+            if tecla == "Up" and p1_cy + PASSO <= 143:
+                portais.mover_p1(0, PASSO)
+                p1_cy += PASSO
+                linha_muro_baixo.undraw();
+                linha_muro_cima.undraw()
+                linha_muro_baixo = Line(Point(PAREDE_X, -10), Point(PAREDE_X, p1_cy - meia))
+                linha_muro_cima = Line(Point(PAREDE_X, p1_cy + meia), Point(PAREDE_X, 155))
+                linha_muro_baixo.draw(win);
+                linha_muro_cima.draw(win)
+            elif tecla == "Down" and p1_cy - PASSO >= 12:
+                portais.mover_p1(0, -PASSO)
+                p1_cy -= PASSO
+                linha_muro_baixo.undraw();
+                linha_muro_cima.undraw()
+                linha_muro_baixo = Line(Point(PAREDE_X, -10), Point(PAREDE_X, p1_cy - meia))
+                linha_muro_cima = Line(Point(PAREDE_X, p1_cy + meia), Point(PAREDE_X, 155))
+                linha_muro_baixo.draw(win);
+                linha_muro_cima.draw(win)
+            elif tecla == "Left" and p2_cx - PASSO >= PAREDE_X + 20:
+                portais.mover_p2(-PASSO, 0);
+                p2_cx -= PASSO
+            elif tecla == "Right" and p2_cx + PASSO <= WALL_X - 15:
+                portais.mover_p2(PASSO, 0);
+                p2_cx += PASSO
+            elif tecla == "space":
+                # Sai do modo de ajuste se carregar na barra de espaços
+                break
+
+            # Este checkMouse "come" os cliques soltos, impedindo bugs, e permite
+            # que o utilizador clique na janela apenas para lhe dar Focus
+            win.checkMouse()
+            update(25)
+
+        msg.undraw()
+
+        # --- 2. FASE DO INPUT DIALOG ---
         v_window = InputDialog(angle, vel0)
         option = v_window.interaction()
         v_window.close()
-        win.master.deiconify()
-        win.master.lift()
+
         if option == "Quit":
             break
         elif option == "Fire!":
             angle, vel0 = v_window.collect_values()
 
+        # --- 3. FASE DO VOO ---
+        # (Assumindo que `trajetoria2` é o seu módulo de trajetórias)
         data_inicio, tempos, xs, ys, t = trajetoria2.iniciar()
         tracker = ShotTracker(angle, vel0, h0, win)
         player.shoot(win)
@@ -242,14 +295,12 @@ def cenario4():
             trajetoria2.registar(tempos, xs, ys, t, tracker)
             tracker.update_tracker(0.1)
 
-            # Portais têm prioridade sobre a parede do meio.
-            # Após teletransporte a bola está à direita da parede (x > PAREDE_X),
-            # por isso só aplicamos a colisão quando a bola se aproxima pela esquerda.
             if not portais.aplicar(tracker, BALL_R):
-                na_zona_portal = (PORTAL_CY - meia <= tracker.gety() <= PORTAL_CY + meia)
-                pela_esquerda  = tracker.getx() <= PAREDE_X + BALL_R
+                na_zona_portal = (p1_cy - meia <= tracker.gety() <= p1_cy + meia)
+                pela_esquerda = tracker.getx() <= PAREDE_X + BALL_R
                 if not na_zona_portal and pela_esquerda:
                     colisoes.colisao_parede(tracker, BALL_R, PAREDE_X)
+
             colisoes.colisao_chao(tracker, BALL_R)
             colisoes.colisao_parede(tracker, BALL_R, WALL_X)
             colisoes.colisao_circulo(tracker, BALL_R, 160, 100, ARO_R)
@@ -259,12 +310,39 @@ def cenario4():
                 scoreboard.update_score()
                 marcou_ponto = True
 
+            # Dinâmica extra: permite mover os portais mesmo enquanto a bola voa!
+            tecla_voo = win.checkKey()
+            if tecla_voo == "Up" and p1_cy + PASSO <= 143:
+                portais.mover_p1(0, PASSO)
+                p1_cy += PASSO
+                linha_muro_baixo.undraw();
+                linha_muro_cima.undraw()
+                linha_muro_baixo = Line(Point(PAREDE_X, -10), Point(PAREDE_X, p1_cy - meia))
+                linha_muro_cima = Line(Point(PAREDE_X, p1_cy + meia), Point(PAREDE_X, 155))
+                linha_muro_baixo.draw(win);
+                linha_muro_cima.draw(win)
+            elif tecla_voo == "Down" and p1_cy - PASSO >= 12:
+                portais.mover_p1(0, -PASSO)
+                p1_cy -= PASSO
+                linha_muro_baixo.undraw();
+                linha_muro_cima.undraw()
+                linha_muro_baixo = Line(Point(PAREDE_X, -10), Point(PAREDE_X, p1_cy - meia))
+                linha_muro_cima = Line(Point(PAREDE_X, p1_cy + meia), Point(PAREDE_X, 155))
+                linha_muro_baixo.draw(win);
+                linha_muro_cima.draw(win)
+            elif tecla_voo == "Left" and p2_cx - PASSO >= PAREDE_X + 20:
+                portais.mover_p2(-PASSO, 0);
+                p2_cx -= PASSO
+            elif tecla_voo == "Right" and p2_cx + PASSO <= WALL_X - 15:
+                portais.mover_p2(PASSO, 0);
+                p2_cx += PASSO
+
             t += 0.1
             update(25)
 
             if tracker.getx() < -10:
                 break
-            if tracker.xvel**2 + tracker.yvel**2 < 0.25:
+            if tracker.xvel ** 2 + tracker.yvel ** 2 < 0.25:
                 break
 
         tracker.destroy()
@@ -273,16 +351,8 @@ def cenario4():
     if win.isOpen():
         win.close()
 
-
 # ─── Cenário 3 (placeholder) ──────────────────────────────────────────────────
-def abre_cenario(num):
-    w = GraphWin("Cenario {}".format(num), 600, 450)
-    w.setBackground("lightblue")
-    try:
-        w.getMouse()
-        w.close()
-    except GraphicsError:
-        pass
+
 
 
 # ─── Menu ─────────────────────────────────────────────────────────────────────
