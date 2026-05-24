@@ -1,5 +1,5 @@
 from graphics import *
-from Projectiles2 import Projectile, ShotTracker1
+from Projectiles import Projectile, ShotTracker1
 from entities import *
 from button import Button, BotaoCircular
 from math import cos, sin, atan, sqrt
@@ -9,7 +9,7 @@ from portais import ParDePortais
 
 
 # ─── Cenário 1 com Colisões ───────────────────────────────────────────────────
-def cenario1():
+def cenario1() :
     BALL_R = 6
     ARO_R  = 3
     WALL_X = 205
@@ -199,6 +199,7 @@ def atualiza_parede_meio(win, parede_x, p1_cy, meia, linha_baixo, linha_cima):
     nova_linha_cima.draw(win)
     return nova_linha_baixo, nova_linha_cima
 
+
 def cenario4():
     BALL_R = 6
     ARO_R = 3
@@ -222,8 +223,17 @@ def cenario4():
     meia = PORTAL_LARG / 2
     linha_muro_baixo, linha_muro_cima = atualiza_parede_meio(win, PAREDE_X, p1_cy, meia, None, None)
 
-    Text(Point(45, 148), "Cima/Baixo: portal azul").draw(win)
-    Text(Point(155, 148), "Esq/Dir: portal laranja").draw(win)
+    # Painel de controlo via botões gráficos
+    btn_p1_up = Button(win, Point(30, 145), 35, 8, "Azul Cima")
+    btn_p1_dn = Button(win, Point(30, 135), 35, 8, "Azul Baixo")
+
+    btn_p2_esq = Button(win, Point(180, 145), 35, 8, "Lar Esq")
+    btn_p2_dir = Button(win, Point(180, 135), 35, 8, "Lar Dir")
+
+    btn_fire = Button(win, Point(105, -2), 40, 8, "ATIRAR")
+
+    for b in [btn_p1_up, btn_p1_dn, btn_p2_esq, btn_p2_dir, btn_fire]:
+        b.activate()
 
     portais = ParDePortais(
         win,
@@ -236,38 +246,34 @@ def cenario4():
     player = StickMan(win)
 
     while win.isOpen():
-        # Recupera o foco do teclado no início de cada nova ronda (após fechar a janela de gravação)
-        try:
-            win.master.focus_set()
-        except:
-            pass
 
-        # --- 1. FASE DE AJUSTE DOS PORTAIS ---
-        msg = Text(Point(100, -6), "Setas: ajustar portais | ESPAÇO: confirmar e atirar")
+        # --- 1. FASE DE AJUSTE DOS PORTAIS (Via Cliques) ---
+        msg = Text(Point(105, 10), "Use os botões para ajustar os portais e Atirar")
         msg.setFill("blue")
         msg.draw(win)
 
         while win.isOpen():
-            tecla = win.checkKey()
+            p = win.getMouse()
 
-            if tecla == "Up" and p1_cy + PASSO <= 143:
+            if btn_p1_up.clicked(p) and p1_cy + PASSO <= 143:
                 portais.mover_p1(0, PASSO)
                 p1_cy += PASSO
-                linha_muro_baixo, linha_muro_cima = atualiza_parede_meio(win, PAREDE_X, p1_cy, meia, linha_muro_baixo, linha_muro_cima)
-            elif tecla == "Down" and p1_cy - PASSO >= 12:
+                linha_muro_baixo, linha_muro_cima = atualiza_parede_meio(win, PAREDE_X, p1_cy, meia, linha_muro_baixo,
+                                                                         linha_muro_cima)
+            elif btn_p1_dn.clicked(p) and p1_cy - PASSO >= 12:
                 portais.mover_p1(0, -PASSO)
                 p1_cy -= PASSO
-                linha_muro_baixo, linha_muro_cima = atualiza_parede_meio(win, PAREDE_X, p1_cy, meia, linha_muro_baixo, offset_cima=linha_muro_cima)
-            elif tecla == "Left" and p2_cx - PASSO >= PAREDE_X + 20:
+                linha_muro_baixo, linha_muro_cima = atualiza_parede_meio(win, PAREDE_X, p1_cy, meia, linha_muro_baixo,
+                                                                         linha_muro_cima)
+            elif btn_p2_esq.clicked(p) and p2_cx - PASSO >= PAREDE_X + 20:
                 portais.mover_p2(-PASSO, 0)
                 p2_cx -= PASSO
-            elif tecla == "Right" and p2_cx + PASSO <= WALL_X - 15:
+            elif btn_p2_dir.clicked(p) and p2_cx + PASSO <= WALL_X - 15:
                 portais.mover_p2(PASSO, 0)
                 p2_cx += PASSO
-            elif tecla == "space":
+            elif btn_fire.clicked(p):
                 break
 
-            win.checkMouse()
             update(25)
 
         msg.undraw()
@@ -282,15 +288,11 @@ def cenario4():
         elif option == "Fire!":
             angle, vel0 = v_window.collect_values()
 
-        # Recupera o foco do teclado imediatamente após fechar a janela de diálogo do tiro
-        try:
-            win.master.focus_set()
-        except:
-            pass
-
-        # --- 3. FASE DO VOO ---
+        # --- 3. FASE DO VOO
         data_inicio, tempos, xs, ys, t = trajetoria2.iniciar()
+
         tracker = ShotTracker1(0, win, "orange", "black", BALL_R, h0, angle, vel0)
+
         player.shoot(win)
         marcou_ponto = False
 
@@ -306,6 +308,7 @@ def cenario4():
 
             colisoes.colisao_chao(tracker, BALL_R)
             colisoes.colisao_parede(tracker, BALL_R, WALL_X)
+
             colisoes.colisao_circulo(tracker, BALL_R, 160, 100, ARO_R)
             colisoes.colisao_circulo(tracker, BALL_R, 200, 100, ARO_R)
 
@@ -313,27 +316,31 @@ def cenario4():
                 scoreboard.update_score()
                 marcou_ponto = True
 
-            # Permite mover os portais mesmo em tempo de voo
-            tecla_voo = win.checkKey()
-            if tecla_voo == "Up" and p1_cy + PASSO <= 143:
-                portais.mover_p1(0, PASSO)
-                p1_cy += PASSO
-                linha_muro_baixo, App_muro_cima = atualiza_parede_meio(win, PAREDE_X, p1_cy, meia, linha_muro_baixo, linha_muro_cima)
-            elif tecla_voo == "Down" and p1_cy - PASSO >= 12:
-                portais.mover_p1(0, -PASSO)
-                p1_cy -= PASSO
-                linha_muro_baixo, linha_muro_cima = atualiza_parede_meio(win, PAREDE_X, p1_cy, meia, linha_muro_baixo, linha_muro_cima)
-            elif tecla_voo == "Left" and p2_cx - PASSO >= PAREDE_X + 20:
-                portais.mover_p2(-PASSO, 0)
-                p2_cx -= PASSO
-            elif tecla_voo == "Right" and p2_cx + PASSO <= WALL_X - 15:
-                portais.mover_p2(PASSO, 0)
-                p2_cx += PASSO
+            # Movimentação dos portais por clique durante o tempo de voo
+            p_voo = win.checkMouse()
+            if p_voo:
+                if btn_p1_up.clicked(p_voo) and p1_cy + PASSO <= 143:
+                    portais.mover_p1(0, PASSO)
+                    p1_cy += PASSO
+                    linha_muro_baixo, linha_muro_cima = atualiza_parede_meio(win, PAREDE_X, p1_cy, meia,
+                                                                             linha_muro_baixo, linha_muro_cima)
+                elif btn_p1_dn.clicked(p_voo) and p1_cy - PASSO >= 12:
+                    portais.mover_p1(0, -PASSO)
+                    p1_cy -= PASSO
+                    linha_muro_baixo, linha_muro_cima = atualiza_parede_meio(win, PAREDE_X, p1_cy, meia,
+                                                                             linha_muro_baixo, linha_muro_cima)
+                elif btn_p2_esq.clicked(p_voo) and p2_cx - PASSO >= PAREDE_X + 20:
+                    portais.mover_p2(-PASSO, 0)
+                    p2_cx -= PASSO
+                elif btn_p2_dir.clicked(p_voo) and p2_cx + PASSO <= WALL_X - 15:
+                    portais.mover_p2(PASSO, 0)
+                    p2_cx += PASSO
 
             t += 0.1
             update(25)
 
-            if tracker.getx() < -10:
+            # Término do lançamento se a bola sair pela esquerda ou atingir o limite de 10 segundos
+            if tracker.getx() < -10 or t >= 10.0:
                 break
             if tracker.xvel ** 2 + tracker.yvel ** 2 < 0.25:
                 break
@@ -343,8 +350,6 @@ def cenario4():
 
     if win.isOpen():
         win.close()
-
-
 # ─── Cenário 3 (placeholder) ──────────────────────────────────────────────────
 
 
