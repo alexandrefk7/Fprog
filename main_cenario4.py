@@ -5,11 +5,11 @@ from button import Button, BotaoCircular
 from math import cos, sin, atan, sqrt
 import trajetoria2
 import colisoes
-from portais import ParDePortais
+from portais import PortalPair
 
 
 # ─── Cenário 1 com Colisões ───────────────────────────────────────────────────
-def cenario1() :
+def scenario1() :
     BALL_R = 6
     ARO_R  = 3
     WALL_X = 205
@@ -71,7 +71,7 @@ def cenario1() :
 # ─── Cenário 2 ────────────────────────────────────────────────────────────────
 SCALAR = 0.1
 
-def desenha_parabola(win, x_max=12):
+def draw_parabola(win, x_max=12):
     x = -x_max
     while x < x_max:
         x2 = x + 0.2
@@ -103,7 +103,7 @@ class Roller:
 class RollerTracker(Roller):
     R = 0.6
 
-    def _centro(self):
+    def _center(self):
         slope = 2 * SCALAR * self.xpos
         length = sqrt(1 + slope**2)
         cx = self.xpos - self.R * slope / length
@@ -112,7 +112,7 @@ class RollerTracker(Roller):
 
     def __init__(self, xpos, win):
         super().__init__(xpos)
-        cx, cy = self._centro()
+        cx, cy = self._center()
         self.marker = Circle(Point(cx, cy), self.R)
         self.marker.setFill("orange")
         self.marker.setOutline("black")
@@ -120,18 +120,18 @@ class RollerTracker(Roller):
 
     def update_tracker(self, interval):
         self.update(interval)
-        cx, cy = self._centro()
+        cx, cy = self._center()
         center = self.marker.getCenter()
         self.marker.move(cx - center.getX(), cy - center.getY())
 
     def destroy(self):
         self.marker.undraw()
 
-def cenario2():
+def scenario2():
     win = GraphWin("Cenario 2 - Rolamento", 500, 500, autoflush=False)
     win.setCoords(-15, -2, 15, 20)
     win.master.geometry("+50+100")
-    desenha_parabola(win)
+    draw_parabola(win)
     btn_quit = Button(win, Point(0, 18.5), 5, 1.2, "QUIT")
     btn_quit.activate()
     msg = Text(Point(0, 17), "Clique para escolher a altura inicial")
@@ -188,7 +188,7 @@ def cenario2():
 
 
 # ─── Cenário 4 ────────────────────────────────────────────────────────────────
-def atualiza_parede_meio(win, parede_x, p1_cy, meia, linha_baixo, linha_cima):
+def update_middle_wall(win, parede_x, p1_cy, meia, linha_baixo, linha_cima):
     """Função auxiliar para apagar e redesenhar o muro do portal azul sem repetir código"""
     if linha_baixo is not None:
         linha_baixo.undraw()
@@ -200,7 +200,7 @@ def atualiza_parede_meio(win, parede_x, p1_cy, meia, linha_baixo, linha_cima):
     return nova_linha_baixo, nova_linha_cima
 
 
-def cenario4():
+def scenario4():
     BALL_R = 6
     ARO_R = 3
     WALL_X = 205
@@ -221,7 +221,7 @@ def cenario4():
 
     # Desenho inicial do muro usando a função auxiliar
     meia = PORTAL_LARG / 2
-    linha_muro_baixo, linha_muro_cima = atualiza_parede_meio(win, PAREDE_X, p1_cy, meia, None, None)
+    linha_muro_baixo, linha_muro_cima = update_middle_wall(win, PAREDE_X, p1_cy, meia, None, None)
 
     # Painel de controlo via botões gráficos
     btn_p1_up = Button(win, Point(30, 145), 35, 8, "Azul Cima")
@@ -235,7 +235,7 @@ def cenario4():
     for b in [btn_p1_up, btn_p1_dn, btn_p2_esq, btn_p2_dir, btn_fire]:
         b.activate()
 
-    portais = ParDePortais(
+    portais = PortalPair(
         win,
         Point(PAREDE_X, p1_cy), (1, 0),
         Point(p2_cx, p2_cy), (1, 1),
@@ -256,20 +256,20 @@ def cenario4():
             p = win.getMouse()
 
             if btn_p1_up.clicked(p) and p1_cy + PASSO <= 143:
-                portais.mover_p1(0, PASSO)
+                portais.move_p1(0, PASSO)
                 p1_cy += PASSO
-                linha_muro_baixo, linha_muro_cima = atualiza_parede_meio(win, PAREDE_X, p1_cy, meia, linha_muro_baixo,
+                linha_muro_baixo, linha_muro_cima = update_middle_wall(win, PAREDE_X, p1_cy, meia, linha_muro_baixo,
                                                                          linha_muro_cima)
             elif btn_p1_dn.clicked(p) and p1_cy - PASSO >= 12:
-                portais.mover_p1(0, -PASSO)
+                portais.move_p1(0, -PASSO)
                 p1_cy -= PASSO
-                linha_muro_baixo, linha_muro_cima = atualiza_parede_meio(win, PAREDE_X, p1_cy, meia, linha_muro_baixo,
+                linha_muro_baixo, linha_muro_cima = update_middle_wall(win, PAREDE_X, p1_cy, meia, linha_muro_baixo,
                                                                          linha_muro_cima)
             elif btn_p2_esq.clicked(p) and p2_cx - PASSO >= PAREDE_X + 20:
-                portais.mover_p2(-PASSO, 0)
+                portais.move_p2(-PASSO, 0)
                 p2_cx -= PASSO
             elif btn_p2_dir.clicked(p) and p2_cx + PASSO <= WALL_X - 15:
-                portais.mover_p2(PASSO, 0)
+                portais.move_p2(PASSO, 0)
                 p2_cx += PASSO
             elif btn_fire.clicked(p):
                 break
@@ -300,7 +300,7 @@ def cenario4():
             trajetoria2.registar(tempos, xs, ys, t, tracker)
             tracker.update_tracker(0.1)
 
-            if not portais.aplicar(tracker, BALL_R):
+            if not portais.apply(tracker, BALL_R):
                 na_zona_portal = (p1_cy - meia <= tracker.gety() <= p1_cy + meia)
                 pela_esquerda = tracker.getx() <= PAREDE_X + BALL_R
                 if not na_zona_portal and pela_esquerda:
@@ -320,20 +320,20 @@ def cenario4():
             p_voo = win.checkMouse()
             if p_voo:
                 if btn_p1_up.clicked(p_voo) and p1_cy + PASSO <= 143:
-                    portais.mover_p1(0, PASSO)
+                    portais.move_p1(0, PASSO)
                     p1_cy += PASSO
-                    linha_muro_baixo, linha_muro_cima = atualiza_parede_meio(win, PAREDE_X, p1_cy, meia,
+                    linha_muro_baixo, linha_muro_cima = update_middle_wall(win, PAREDE_X, p1_cy, meia,
                                                                              linha_muro_baixo, linha_muro_cima)
                 elif btn_p1_dn.clicked(p_voo) and p1_cy - PASSO >= 12:
-                    portais.mover_p1(0, -PASSO)
+                    portais.move_p1(0, -PASSO)
                     p1_cy -= PASSO
-                    linha_muro_baixo, linha_muro_cima = atualiza_parede_meio(win, PAREDE_X, p1_cy, meia,
+                    linha_muro_baixo, linha_muro_cima = update_middle_wall(win, PAREDE_X, p1_cy, meia,
                                                                              linha_muro_baixo, linha_muro_cima)
                 elif btn_p2_esq.clicked(p_voo) and p2_cx - PASSO >= PAREDE_X + 20:
-                    portais.mover_p2(-PASSO, 0)
+                    portais.move_p2(-PASSO, 0)
                     p2_cx -= PASSO
                 elif btn_p2_dir.clicked(p_voo) and p2_cx + PASSO <= WALL_X - 15:
-                    portais.mover_p2(PASSO, 0)
+                    portais.move_p2(PASSO, 0)
                     p2_cx += PASSO
 
             t += 0.1
@@ -384,13 +384,13 @@ while True:
         if sel is not None:
             menu.close()
             if sel == 1:
-                cenario1()
+                scenario1()
             elif sel == 2:
-                cenario2()
+                scenario2()
             elif sel == 4:
-                cenario4()
+                scenario4()
             else:
-                abre_cenario(sel)
+                open_scenario(sel)
             break
     elif btn_quit.clicked(p):
         menu.close()
