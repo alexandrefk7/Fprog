@@ -3,7 +3,7 @@ from math import sqrt
 COEF = 0.85  # velocidade de saída
 
 
-def colisao_linha(tracker, ball_r, px, py, nx, ny):
+def line_collision(tracker, ball_r, px, py, nx, ny):
 
     #vetor do ponto da linha para o centro da bola
     dx = tracker.getx() - px
@@ -28,7 +28,7 @@ def colisao_linha(tracker, ball_r, px, py, nx, ny):
     return False
 
 
-def colisao_circulo(tracker, ball_r, cx, cy, cr):
+def circle_collision(tracker, ball_r, cx, cy, cr):
     dx = tracker.getx() - cx
     dy = tracker.gety() - cy
 
