@@ -229,11 +229,10 @@ def cen3():
                 ball_is_thrown = True
             else:
                 parabola_ball.update_tracker(0.1)
-        # caso a bola há tenha sido lançada e o novo objeto já exista ocorre o update da posição da bola projetada.
-        # feito desta forma para evitar o uso de variáveis globais
+        #update da posicao
         if ball_is_thrown and launcher_ball is not None:
 
-            # verifica a posicao da bola e marca ponto consoante a mesma
+            # verifica a posicao da bola
             if parabola_finalx <= launcher_ball.getx() and launcher_ball.gety() < 200:
                 left_limit = basket_left_center.getX() + basket.radius
                 right_limit = basket_left_center.getX() + basket.radius + basket.offset

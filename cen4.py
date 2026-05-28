@@ -13,7 +13,7 @@ def cenario4():
     PASSO = 5
 
     p1_cy = 50
-    p2_cx, p2_cy = 130, 85
+    p2_cx, p2_cy = 150, 85
 
     angle, vel0, h0 = 35, 40, 48
     dt = 0.1
@@ -158,9 +158,15 @@ def cenario4():
                 # portais e colisoes
                 if not portais.apply(tracker, BALL_R):
                     na_zona_portal = (p1_cy - meia <= tracker.gety() <= p1_cy + meia)
-                    pela_esquerda = tracker.getx() <= PAREDE_X + BALL_R
-                    if not na_zona_portal and pela_esquerda:
-                        static_colision_detector(tracker, BALL_R, px=PAREDE_X, py=0, normx=-1, normy=0)
+
+                    if not na_zona_portal:
+                        # Verifica em que lado do muro a bola está para aplicar a colisão correta
+                        meio_do_muro = PAREDE_X + (espessura / 2)
+
+                        if tracker.getx() < meio_do_muro:
+                            static_colision_detector(tracker, BALL_R, px=PAREDE_X, py=0, normx=-1, normy=0)
+                        else:
+                            static_colision_detector(tracker, BALL_R, px=PAREDE_X + espessura, py=0, normx=1, normy=0)
 
                 static_colision_detector(tracker, BALL_R, px=0, py=0, normx=0, normy=1)
                 static_colision_detector(tracker, BALL_R, px=WALL_X, py=0, normx=-1, normy=0)

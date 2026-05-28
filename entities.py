@@ -1,51 +1,66 @@
-from graphics import*
+from graphics import *
 import random
 import time
 
-#Cria a linha com medições de distância (Cenário 1)
+
+# Cria a linha com medições de distância (Cenário 1)
 class Static:
-    def __init__(self,center, shape, color, outline, window, offset=0, radius=0):
-        self.center=center
-        self.shape=shape
-        self.radius=radius
-        self.color=color
-        self.outline=outline
-        self.win=window
-        self.offset=offset
+    def __init__(self, center, shape, color, outline, window, offset=0, radius=0):
+        self.center = center
+        self.shape = shape
+        self.radius = radius
+        self.color = color
+        self.outline = outline
+        self.win = window
+        self.offset = offset
         self.constructor()
-    def create_balls(self):
-            self.ball = Circle(self.center, self.radius)
-            self.ball.setFill(self.color)
-            self.ball.setOutline(self.outline)
-            self.ball.draw(self.win)
+
+    def create_wall(self):
+        line = Line(self.center, Point(self.center.getX(), self.center.getY() + self.offset))
+        line.draw(self.win)
 
     def create_line(self):
-            big_line=Line(Point(-10, 0), Point(210, 0))
-            big_line.draw(self.win)
-            for val in range(0, 210, 50):
-                line = Line(Point(val, 0), Point(val, 4))
-                line.draw(self.win)
-                mark = Text(Point(val, -5), f"{val}")
-                mark.draw(self.win)
+        line = Line(self.center, Point(self.center.getX() + self.offset, self.center.getY()))
+        line.draw(self.win)
+
+    def create_balls(self):
+        self.ball = Circle(self.center, self.radius)
+        self.ball.setFill(self.color)
+        self.ball.setOutline(self.outline)
+        self.ball.draw(self.win)
+
+    def create_metricline(self):
+        big_line = Line(Point(-10, 0), Point(210, 0))
+        big_line.draw(self.win)
+        for val in range(0, 210, 50):
+            line = Line(Point(val, 0), Point(val, 4))
+            line.draw(self.win)
+            mark = Text(Point(val, -5), f"{val}")
+            mark.draw(self.win)
 
     def create_basket(self):
-            left_ball=Static(self.center, "circle", self.color, self.outline, self.win,radius=self.radius)
-            right_ball=Static(Point(self.center.getX()+self.offset, self.center.getY()), "circle", self.color, self.outline, self.win, radius=self.radius)
-            left_ball.create_balls()
-            right_ball.create_balls()
-            line=Line(Point(self.center.getX(), self.center.getY()+self.radius), Point(self.center.getX()+self.offset, self.center.getY()+self.radius))
-            line.draw(self.win)
+        left_ball = Static(self.center, "circle", self.color, self.outline, self.win, radius=self.radius)
+        right_ball = Static(Point(self.center.getX() + self.offset, self.center.getY()), "circle", self.color,
+                            self.outline, self.win, radius=self.radius)
+        left_ball.create_balls()
+        right_ball.create_balls()
+        line = Line(Point(self.center.getX(), self.center.getY() + self.radius),
+                    Point(self.center.getX() + self.offset, self.center.getY() + self.radius))
+        line.draw(self.win)
 
     def constructor(self):
-        if self.shape=="circle" and self.radius>0 and self.offset==0:
+        if self.shape == "circle" and self.radius > 0 and self.offset == 0:
             self.create_balls()
-        elif self.shape=="line" and self.radius==0 and self.offset==0:
-            self.create_line()
-        elif self.shape=="basket" and self.radius>0 and self.offset>0:
+        elif self.shape == "metric" and self.radius == 0 and self.offset == 0:
+            self.create_metricline()
+        elif self.shape == "basket" and self.radius > 0 and self.offset > 0:
             self.create_basket()
+        elif self.shape == "line" and self.offset != 0:
+            self.create_line()
+        elif self.shape == "wall" and self.offset != 0:
+            self.create_wall()
 
-
-    #Cria um cesto (Cenário 1)
+    # Cria um cesto (Cenário 1)
     # def create_basket(ball1, ball2, height, win):
     #     left_side=Circle(Point(ball1, height), 3)
     #     left_side.draw(win)
@@ -54,49 +69,57 @@ class Static:
     #     line=Line(Point(ball1, height+3), Point(ball2, height+3))
     #     line.draw(win)
 
-def parabola(left_side_xcord, win):
-    mirror=left_side_xcord*-1
-    scalar=0.1
-    while left_side_xcord < mirror:
-        point=Point(left_side_xcord, scalar*left_side_xcord**2)
-        nextx_coord=left_side_xcord+0.2
-        next_point=Point(nextx_coord, scalar*nextx_coord**2)
-        line=Line(point, next_point)
-        line.draw(win)
-        left_side_xcord+=0.2
 
-#Classe que cria e atualiza uma determinada pontuação (Cenário 1 e 3)
+def parabola(left_side_xcord, win, xoffset=0, yoffset=0, mirror_dif=0, scalar=0.1, draw=True):
+    mirror = left_side_xcord * -1 - mirror_dif
+    if draw == True:
+        while left_side_xcord < mirror:
+            point = Point(left_side_xcord, scalar * (left_side_xcord - xoffset) ** 2 + yoffset)
+            nextx_coord = left_side_xcord + 0.2
+            next_point = Point(nextx_coord, scalar * (nextx_coord - xoffset) ** 2 + yoffset)
+            line = Line(point, next_point)
+            line.draw(win)
+            left_side_xcord += 0.2
+    return scalar * (left_side_xcord - xoffset) ** 2 + yoffset
+
+
+# Classe que cria e atualiza uma determinada pontuação (Cenário 1 e 3)
 class ScoreBoard:
-    def __init__(self, win):
-        self.congratulations=["Nice!", "You're Killing it!", "9/10 dentists recommend your plays!", "ON FIRE!", "KOBE!"]
-        self.depreciations=["Oh well!", "Can't win them all", "The door is over there...", "*crowd throws tomatoes at you..."]
-        self.score_number=0
-        self.scoreboard=Text(Point(15, 150), f"Score: {self.score_number}")
+    def __init__(self, pos, message_pos, win):
+        self.congratulations = ["Nice!", "You're Killing it!", "9/10 dentists recommend your plays!", "ON FIRE!",
+                                "KOBE!"]
+        self.depreciations = ["Oh well!", "Can't win them all", "The door is over there...",
+                              "*crowd throws tomatoes at you..."]
+        self.score_number = 0
+
+        self.scoreboard = Text(pos, f"Score: {self.score_number}")
         self.scoreboard.draw(win)
-        self.message=Text(Point(100, 140), "Test your skills!")
+        self.message = Text(message_pos, "Test your skills!")
         self.message.draw(win)
-#Atualiza o valor da pontuação 
+
+    # Atualiza o valor da pontuação
+
     def update_score(self):
-        self.score_number+=2
+        self.score_number += 2
         self.scoreboard.setText(f"Score: {self.score_number}")
+
     def unecessary_cheers(self, win):
-        self.message.setText(f"{self.congratulations[random.randint(0, (len(self.congratulations)-1))]}")
+        self.message.setText(f"{self.congratulations[random.randint(0, (len(self.congratulations) - 1))]}")
         self.message.undraw()
         self.message.draw(win)
+
     def necessary_depreciations(self, win):
-        self.message.setText(f"{self.depreciations[random.randint(0, (len(self.depreciations)-1))]}")
+        self.message.setText(f"{self.depreciations[random.randint(0, (len(self.depreciations) - 1))]}")
         self.message.undraw()
         self.message.draw(win)
 
-        
 
-     
-#cria a classe botão
+# cria a classe botão
 class Button:
     def __init__(self, window, center, width, height, label):
-        self.active=True
+        self.active = True
 
-        w,h = width/2.0, height/2.0
+        w, h = width / 2.0, height / 2.0
         x, y = center.getX(), center.getY()
         self.xmax, self.xmin = x + w, x - w
         self.ymax, self.ymin = y + h, y - h
@@ -109,120 +132,125 @@ class Button:
         self.label.draw(window)
         self.deactivate()
 
-        #ativa o botão
-    def activate(self):
+        # ativa o botão
 
+    def activate(self):
         self.label.setFill("black")
         self.rect.setWidth(2)
         self.active = True
-#impossibilita o uso do botão
-    def deactivate(self):
 
+    # impossibilita o uso do botão
+    def deactivate(self):
         self.label.setFill("darkgrey")
         self.rect.setWidth(1)
         self.active = False
-#verifica se o botão foi pressionado
-    def clicked(self, p):
 
+    # verifica se o botão foi pressionado
+    def clicked(self, p):
         return self.active and \
             self.xmin <= p.getX() <= self.xmax and \
             self.ymin <= p.getY() <= self.ymax
 
-#cria a janela que aceita os valores escolhidos pelo utilizador
+
+# cria a janela que aceita os valores escolhidos pelo utilizador
 class InputDialog:
-    #inicializa uma nova janela onde vão ser colocados os valores
+    # inicializa uma nova janela onde vão ser colocados os valores
     def __init__(self, angle, vel0):
-        self.win=window=GraphWin("Valores Iniciais", 200, 300, autoflush=False)
+        self.win = window = GraphWin("Valores Iniciais", 200, 300, autoflush=False)
         self.win.setCoords(0, 5, 4, 0.5)
         self.win.setBackground("grey")
 
-        Text(Point(1,2), "Angulo").draw(window)
-        self.angle = Entry(Point(3,2), 5)
+        Text(Point(1, 2), "Angulo").draw(window)
+        self.angle = Entry(Point(3, 2), 5)
         self.angle.draw(window)
         self.angle.setText(str(angle))
 
-        Text(Point(1,3.5 ), "Velocidade").draw(window)
-        self.vel=Entry(Point(3,3.5), 5)
+        Text(Point(1, 3.5), "Velocidade").draw(window)
+        self.vel = Entry(Point(3, 3.5), 5)
         self.vel.draw(window)
         self.vel.setText(str(vel0))
-
 
         self.shoot = Button(window, Point(1, 4.5), 1.25, .5, "Atirar!")
         self.shoot.activate()
         self.quit = Button(window, Point(3, 4.5), 1.25, .5, "Sair")
         self.quit.activate()
 
-#cria um utcome para cada botão possivelmente pressionado
+    # cria um utcome para cada botão possivelmente pressionado
     def interaction(self):
         while True:
-            pt=self.win.getMouse()
-            if self.quit.clicked(pt):
-                self.quit.deactivate()
-                self.win.update()      
-                time.sleep(0.3)         
-                return "Quit"
-            elif self.shoot.clicked(pt):
-                self.shoot.deactivate()
-                self.win.update()      
-                time.sleep(0.1)         
-                return "Fire!"
-            self.win.update()
-#Guarda os valores do utilizador
+            pt = self.win.checkMouse()
+            if pt is None:
+                pass
+            else:
+                if self.quit.clicked(pt):
+                    self.quit.deactivate()
+                    self.win.update()
+                    time.sleep(0.3)
+                    return "Quit"
+                elif self.shoot.clicked(pt):
+                    self.shoot.deactivate()
+                    self.win.update()
+                    time.sleep(0.1)
+                    return "Fire!"
+                self.win.update()
+
+    # Guarda os valores do utilizador
     def collect_values(self):
-        angle=float(self.angle.getText())
-        vel0=float(self.vel.getText())
+        angle = float(self.angle.getText())
+        vel0 = float(self.vel.getText())
         # height=float(self.height.getText())
-        return angle,vel0
+        return angle, vel0
 
     def close(self):
         self.win.close()
 
 
-
-
 class StickMan:
-    def __init__(self, win):
+    def __init__(self, neck_point, ground_level, direction, win):
+        self.direction = direction
+        self.px = neck_point.getX()
+        self.py = neck_point.getY()
 
-        #Cabeça e tronco
-        self.head=Circle(Point(5, 60), 8)
+        # Cabeça e tronco
+        # point(5,60)
+        self.head = Circle(Point(self.px, self.py + 8), 8)
         self.head.setWidth(2)
         self.head.draw(win)
-        self.torso=Line(Point(5,52), Point(5,30))
+        self.torso = Line(Point(self.px, self.py), Point(self.px, self.py - 22))
         self.torso.setWidth(2)
         self.torso.draw(win)
-        #Pernas
-        self.rleg=Line(Point(5, 30),Point(14, 0))
+        # Pernas
+        self.rleg = Line(Point(self.px, self.py - 22), Point(self.px + 9, ground_level))
         self.rleg.setWidth(2)
         self.rleg.draw(win)
-        self.lleg=Line(Point(5, 30), Point(-5, 0))
+        self.lleg = Line(Point(self.px, self.py - 22), Point(self.px - 9, ground_level))
         self.lleg.setWidth(2)
         self.lleg.draw(win)
 
         self.create_arms(win)
 
-
     def create_arms(self, win):
-        #cria bola
-
-        #Bola
-        self.ball = Circle(Point(23, 48), 6)
+        if self.direction == "left":
+            w = -1
+        else:
+            w = 1
+        # Bola
+        self.ball = Circle(Point(self.px + w * 18, self.py - 2), 6)
         self.ball.draw(win)
         self.ball.setFill("orange")
         self.ball.setOutline("black")
 
-        #primeiro braço(trás, esqeurda)
-        self.larm1=Line(Point(5, 50), Point(15, 40))
+        self.larm1 = Line(Point(self.px, self.py), Point(self.px + w * 10, self.py - 10))
         self.larm1.setWidth(2)
         self.larm1.draw(win)
-        self.larm2=Line(Point(15, 40), Point(18, 50))
+        self.larm2 = Line(Point(self.px + w * 10, self.py - 10), Point(self.px + w * 13, self.py))
         self.larm2.setWidth(2)
         self.larm2.draw(win)
 
-        #segundo braço(frente, direita)
-        self.rarm1 = Line(Point(5, 50), Point(10, 35))
+        self.rarm1 = Line(Point(self.px, self.py), Point(self.px + w * 5, self.py - 15))
         self.rarm1.setWidth(2)
         self.rarm1.draw(win)
-        self.rarm2 = Line(Point(10, 35), Point(25, 45))
+        self.rarm2 = Line(Point(self.px + w * 5, self.py - 15), Point(self.px + w * 20, self.py - 5))
         self.rarm2.setWidth(2)
         self.rarm2.draw(win)
 
@@ -234,27 +262,115 @@ class StickMan:
         self.larm2.undraw()
 
     def shoot(self, win):
+
+        if self.direction == "left":
+            w = -1
+        else:
+            w = 1
         self.clear_arms()
 
-        self.larm1 = Line(Point(5, 50), Point(20, 55))
+        self.larm1 = Line(Point(self.px, self.py), Point(self.px + w * 20, self.py + 5))
         self.larm1.setWidth(2)
         self.larm1.draw(win)
-        self.larm2 = Line(Point(20, 55), Point(24, 64))
+        self.larm2 = Line(Point(self.px + w * 20, self.py + 5), Point(self.px + w * 24, self.py + 14))
         self.larm2.setWidth(2)
         self.larm2.draw(win)
 
         # segundo braço(frente, direita)
-        self.rarm1 = Line(Point(5, 50), Point(25, 58))
+        self.rarm1 = Line(Point(self.px, self.py), Point(self.px + w * 25, self.py + 8))
         self.rarm1.setWidth(2)
         self.rarm1.draw(win)
-        self.rarm2 = Line(Point(25, 58), Point(40, 68 ))
+        self.rarm2 = Line(Point(self.px + w * 25, self.py + 8), Point(self.px + w * 40, self.py + 18))
         self.rarm2.setWidth(2)
         self.rarm2.draw(win)
 
 
+from tkinter import filedialog
+from graphics import *
+from entities import Button
 
 
+class Menu:
+    def __init__(self, win):
+        self.win = win
+        self.sel = None
+        self._draw_grid()
+        self._draw_numbers()
+        self._draw_start()
+        self._draw_quit()
 
+    def _draw_grid(self):
+        grid = Rectangle(Point(0.5, 2.5), Point(5.5, 7.5))
+        grid.setFill("white")
+        grid.draw(self.win)
+        Line(Point(0.5, 5.0), Point(5.5, 5.0)).draw(self.win)
+        Line(Point(3.0, 2.5), Point(3.0, 7.5)).draw(self.win)
+
+    def _draw_numbers(self):
+        self.nums = []
+        for i, (x, y) in enumerate([(1.75, 6.25), (4.25, 6.25), (1.75, 3.75), (4.25, 3.75)]):
+            t = Text(Point(x, y), str(i + 1))
+            t.setSize(18)
+            t.setStyle("bold")
+            t.draw(self.win)
+            self.nums.append(t)
+
+    def _draw_start(self):
+        start = Circle(Point(3.0, 5.0), 0.9)
+        start.setFill("red3")
+        start.setOutline("darkred")
+        start.setWidth(3)
+        start.draw(self.win)
+        txt = Text(Point(3.0, 5.0), "START")
+        txt.setFill("white")
+        txt.setStyle("bold")
+        txt.setSize(13)
+        txt.draw(self.win)
+
+    def _draw_quit(self):
+        self.btn = Button(self.win, Point(3.0, 1.25), 4.0, 0.8, "QUIT")
+        self.btn.activate()
+
+    def _select(self, x, y):
+        if x <= 3.0 and y >= 5.0:
+            num = 1
+        elif x >= 3.0 and y >= 5.0:
+            num = 2
+        elif x <= 3.0:
+            num = 3
+        else:
+            num = 4
+        for t in self.nums:
+            t.setFill("black")
+            t.setSize(18)
+        self.nums[num - 1].setFill("red")
+        self.nums[num - 1].setSize(28)
+        self.sel = num
+
+    def _abre_cenario(self, num):
+        w = GraphWin(f"Cenario {num}", 600, 450)
+        w.setBackground("lightblue")
+        try:
+            w.getMouse()
+            w.close()
+        except GraphicsError:
+            pass
+
+    def run(self):
+        while True:
+            try:
+                p = self.win.getMouse()
+            except GraphicsError:
+                break
+            x, y = p.getX(), p.getY()
+            if (x - 3.0) ** 2 + (y - 5.0) ** 2 <= 0.81:
+                if self.sel is not None:
+                    self._abre_cenario(self.sel)
+            elif self.btn.clicked(p):
+                self.win.close()
+                break
+            elif 0.5 <= x <= 5.5 and 2.5 <= y <= 7.5:
+                self._select(x, y)
 
 
 
