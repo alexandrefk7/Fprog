@@ -6,8 +6,6 @@ import time
 
 
 def cen1():
-
-
     angle, vel0, h0, interval = 20, 40, 48, 0.1
 
     win = GraphWin("Basketball Game", 400, 400, autoflush=False)
@@ -15,29 +13,25 @@ def cen1():
 
     Line(Point(205, -10), Point(205, 155)).draw(win)
 
-    # cria a linha de base
+    # cria a linha de base e o cesto
     marked_distance_line = Static(center=Point(100, 0), shape="metric", color="black", outline="black", window=win)
-    # cria o cesto
     basket = Static(center=Point(160, 100), shape="basket", radius=3, color="slategrey", outline="black", window=win,
                     offset=40)
-    
+
+    #botao quit
     btn_quit = Button(win, Point(180, 140), 30, 10, "QUIT")
     btn_quit.activate()
 
-    # posição da bola
+    # posição da bola e placar
     stickman_hand_height = 48
     stickman_right_disloc = 23
-    # tempo de update
     dt = 0.1
-    # cria o contador
     scoreboard = ScoreBoard(Point(15, 150), Point(100, 140), win)
-    # cria o jogador
     player = StickMan(Point(5, 52), 0, "right", win)
 
-    # cria uma janela para inputar os valores
 
     while win.isOpen():
-
+        win.update()
 
 
         v_window = InputDialog(angle, vel0)
@@ -50,7 +44,7 @@ def cen1():
             angle, vel0 = v_window.collect_values()
             v_window.close()
 
-
+            # focos da janela
             win.master.lift()
             win.master.focus_force()
             win.update()
@@ -64,11 +58,20 @@ def cen1():
             player.shoot(win)
             scored = False
 
+
             while 0 <= tracker.gety() and -10 <= tracker.getx() <= 220:
                 tracker.update_tracker(dt)
 
                 static_colision_detector(tracker, 6, px=0, py=0, normx=0, normy=1)
                 static_colision_detector(tracker, 6, px=205, py=0, normx=-1, normy=0)
+                static_colision_detector(tracker, 6, cenx=160, ceny=100, cenr=3)
+                static_colision_detector(tracker, 6, cenx=200, ceny=100, cenr=3)
+
+                # evitar ressaltos muito pequenos
+                if tracker.gety() <= 6.5:
+                    tracker.xvel *= 0.85
+                    if abs(tracker.yvel) < 3:
+                        tracker.yvel = 0
 
                 # regista a posição atual da bola
                 tempo_atual = record_point(trajectory_t, trajectory_x, trajectory_y, tempo_atual, tracker.getx(),
@@ -81,9 +84,18 @@ def cen1():
                     scoreboard.message.undraw()
                     scoreboard.unecessary_cheers(win)
 
+
+                p_voo = win.checkMouse()
+                if p_voo and btn_quit.clicked(p_voo):
+                    tracker.destroy()
+                    if win.isOpen():
+                        win.close()
+                    return
+
                 win.update()
                 update(20)
 
+                #pos colisao
                 if tracker.xvel ** 2 + tracker.yvel ** 2 < 0.25:
                     break
 
@@ -91,14 +103,32 @@ def cen1():
             player.clear_arms()
             player.create_arms(win)
 
-            # apresenta a opção de gravar após o lançamento
-            aviso_gravar = Text(Point(100, 150), "Press 'G' to save or any other key to continue")
+            # opcao de gravar
+            aviso_gravar = Text(Point(100, 120), "Press 'G' to save or any other key to continue")
             aviso_gravar.setTextColor("red")
             aviso_gravar.setStyle("bold")
             aviso_gravar.draw(win)
             win.update()
 
-            tecla_pressionada = win.getKey()
+            tecla_pressionada = None
+            while win.isOpen():
+                tecla_pressionada = win.checkKey()
+                p_gravar = win.checkMouse()
+
+
+                if p_gravar and btn_quit.clicked(p_gravar):
+                    aviso_gravar.undraw()
+                    if win.isOpen():
+                        win.close()
+                    return
+
+                if tecla_pressionada:  # Sai do loop se carregar em qualquer tecla
+                    break
+
+                import time
+                time.sleep(0.05)
+                win.update()
+
             aviso_gravar.undraw()
             win.update()
 
