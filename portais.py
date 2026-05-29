@@ -2,107 +2,106 @@ from math import sqrt
 from graphics import *
 
 
+# par de portais que teleporta a bola entre dois pontos da janela
 class PortalPair:
 
-    def __init__(self, win, centro1, normal1, centro2, normal2, largura,
-                 cor1="blue", cor2="orange"):
+    def __init__(self, janela, centro_portal1, normal_portal1, centro_portal2, normal_portal2, largura_portal,
+                 cor_portal1="blue", cor_portal2="orange"):
 
-        self.win     = win
-        self.largura = largura
-        self.cor1    = cor1
-        self.cor2    = cor2
-        self.p1, self.linha1 = self._create(win, centro1, normal1, largura, cor1)
-        self.p2, self.linha2 = self._create(win, centro2, normal2, largura, cor2)
+        self.janela        = janela
+        self.largura_portal = largura_portal
+        self.cor_portal1   = cor_portal1
+        self.cor_portal2   = cor_portal2
+        # cria os dois portais e guarda dados geométricos e segmento visual de cada um
+        self.dados_portal1, self.segmento_portal1 = self._create(janela, centro_portal1, normal_portal1, largura_portal, cor_portal1)
+        self.dados_portal2, self.segmento_portal2 = self._create(janela, centro_portal2, normal_portal2, largura_portal, cor_portal2)
 
-    def _create(self, win, centro, normal, largura, cor):
-        """Creates a portal: normalises the vector, computes the tangent and draws the line."""
-        cx, cy = centro.getX(), centro.getY()
-        m = sqrt(normal[0]**2 + normal[1]**2)
-        nx, ny = normal[0] / m, normal[1] / m
-        tx, ty = -ny, nx          # tangent perpendicular to normal
-        meia = largura / 2
-        linha = Line(Point(cx - tx*meia, cy - ty*meia),
-                     Point(cx + tx*meia, cy + ty*meia))
-        linha.setFill(cor)
-        linha.setWidth(4)
-        linha.draw(win)
-        return (cx, cy, nx, ny, tx, ty), linha
+    def _create(self, janela, centro_portal, normal_portal, largura_portal, cor_linha):
+        centro_x, centro_y = centro_portal.getX(), centro_portal.getY()
+        # normaliza o vetor normal para garantir comprimento unitário
+        norma_vetor = sqrt(normal_portal[0]**2 + normal_portal[1]**2)
+        normal_x, normal_y = normal_portal[0] / norma_vetor, normal_portal[1] / norma_vetor
+        tangente_x, tangente_y = -normal_y, normal_x          # tangent perpendicular to normal
+        metade_largura = largura_portal / 2
+        # constrói e desenha o segmento visual do portal na janela
+        segmento_visual = Line(Point(centro_x - tangente_x*metade_largura, centro_y - tangente_y*metade_largura),
+                               Point(centro_x + tangente_x*metade_largura, centro_y + tangente_y*metade_largura))
+        segmento_visual.setFill(cor_linha)
+        segmento_visual.setWidth(4)
+        segmento_visual.draw(janela)
+        # devolve dados geométricos e segmento desenhado para uso posterior
+        return (centro_x, centro_y, normal_x, normal_y, tangente_x, tangente_y), segmento_visual
 
-    def move_p1(self, dx, dy):
-        """Moves the entry portal (p1) by (dx, dy) and redraws it."""
-        cx, cy, nx, ny, tx, ty = self.p1
-        cx += dx
-        cy += dy
-        self.linha1.undraw()
-        meia = self.largura / 2
-        self.linha1 = Line(Point(cx - tx*meia, cy - ty*meia),
-                           Point(cx + tx*meia, cy + ty*meia))
-        self.linha1.setFill(self.cor1)
-        self.linha1.setWidth(4)
-        self.linha1.draw(self.win)
-        self.p1 = (cx, cy, nx, ny, tx, ty)
+    def move_p1(self, deslocamento_x, deslocamento_y):
+        centro_x, centro_y, normal_x, normal_y, tangente_x, tangente_y = self.dados_portal1
+        centro_x += deslocamento_x
+        centro_y += deslocamento_y
+        # apaga o segmento antigo e redesenha na nova posição
+        self.segmento_portal1.undraw()
+        metade_largura = self.largura_portal / 2
+        self.segmento_portal1 = Line(Point(centro_x - tangente_x*metade_largura, centro_y - tangente_y*metade_largura),
+                                     Point(centro_x + tangente_x*metade_largura, centro_y + tangente_y*metade_largura))
+        self.segmento_portal1.setFill(self.cor_portal1)
+        self.segmento_portal1.setWidth(4)
+        self.segmento_portal1.draw(self.janela)
+        # atualiza os dados geométricos do portal com o novo centro
+        self.dados_portal1 = (centro_x, centro_y, normal_x, normal_y, tangente_x, tangente_y)
 
-    def move_p2(self, dx, dy):
-        """Moves the exit portal (p2) by (dx, dy) and redraws it."""
-        cx, cy, nx, ny, tx, ty = self.p2
-        cx += dx
-        cy += dy
-        self.linha2.undraw()
-        meia = self.largura / 2
-        self.linha2 = Line(Point(cx - tx*meia, cy - ty*meia),
-                           Point(cx + tx*meia, cy + ty*meia))
-        self.linha2.setFill(self.cor2)
-        self.linha2.setWidth(4)
-        self.linha2.draw(self.win)
-        self.p2 = (cx, cy, nx, ny, tx, ty)
+    def move_p2(self, deslocamento_x, deslocamento_y):
+        centro_x, centro_y, normal_x, normal_y, tangente_x, tangente_y = self.dados_portal2
+        centro_x += deslocamento_x
+        centro_y += deslocamento_y
+        # apaga o segmento antigo e redesenha na nova posição
+        self.segmento_portal2.undraw()
+        metade_largura = self.largura_portal / 2
+        self.segmento_portal2 = Line(Point(centro_x - tangente_x*metade_largura, centro_y - tangente_y*metade_largura),
+                                     Point(centro_x + tangente_x*metade_largura, centro_y + tangente_y*metade_largura))
+        self.segmento_portal2.setFill(self.cor_portal2)
+        self.segmento_portal2.setWidth(4)
+        self.segmento_portal2.draw(self.janela)
+        # atualiza os dados geométricos do portal com o novo centro
+        self.dados_portal2 = (centro_x, centro_y, normal_x, normal_y, tangente_x, tangente_y)
 
-    def _in_zone(self, tracker, ball_r, portal):
-        """Checks whether the ball is inside the detection zone of the portal."""
-        cx, cy, nx, ny, tx, ty = portal
-        dx = tracker.getx() - cx
-        dy = tracker.gety() - cy
-        dist_n = abs(dx*nx + dy*ny)    # perpendicular distance to portal
-        dist_t = abs(dx*tx + dy*ty)    # distance along portal
-        return dist_n <= ball_r and dist_t <= self.largura / 2
+    def _in_zone(self, bola, raio_bola, dados_portal):
+        centro_x, centro_y, normal_x, normal_y, tangente_x, tangente_y = dados_portal
+        diferenca_x = bola.getx() - centro_x
+        diferenca_y = bola.gety() - centro_y
+        distancia_normal     = abs(diferenca_x*normal_x   + diferenca_y*normal_y)    # perpendicular distance to portal
+        distancia_tangencial = abs(diferenca_x*tangente_x + diferenca_y*tangente_y)  # distance along portal
+        # bola na zona se próxima o suficiente em ambas as direções
+        return distancia_normal <= raio_bola and distancia_tangencial <= self.largura_portal / 2
 
-    def _teleport(self, tracker, ball_r, p_entrada, p_saida):
-        """Applies the velocity and position transform between the two portals.
+    def _teleport(self, bola, raio_bola, portal_entrada, portal_saida):
+        _, _, normal_entrada_x, normal_entrada_y, tangente_entrada_x, tangente_entrada_y = portal_entrada
+        centro_saida_x, centro_saida_y, normal_saida_x, normal_saida_y, tangente_saida_x, tangente_saida_y = portal_saida
 
-        The velocity is decomposed in the entry portal frame (normal component vn
-        and tangential component vt) and recomposed in the exit portal frame,
-        preserving the magnitude.
-        """
-        _, _, nx_e, ny_e, tx_e, ty_e = p_entrada
-        cx_s, cy_s, nx_s, ny_s, tx_s, ty_s = p_saida
 
-        # Decompose in entry portal frame
-        vn = tracker.xvel * nx_e + tracker.yvel * ny_e   # normal component
-        vt = tracker.xvel * tx_e + tracker.yvel * ty_e   # tangential component
+        velocidade_normal      = bola.xvel * normal_entrada_x   + bola.yvel * normal_entrada_y    # normal component
+        velocidade_tangencial  = bola.xvel * tangente_entrada_x + bola.yvel * tangente_entrada_y  # tangential component
 
-        # Recompose in exit portal frame (|v| preserved)
-        tracker.xvel = vn * nx_s + vt * tx_s
-        tracker.yvel = vn * ny_s + vt * ty_s
+        # preserva modulo da velocidad quando sai do segundo portal
+        bola.xvel = velocidade_normal * normal_saida_x   + velocidade_tangencial * tangente_saida_x
+        bola.yvel = velocidade_normal * normal_saida_y   + velocidade_tangencial * tangente_saida_y
 
-        # Place ball just outside exit portal (prevents re-detection)
-        tracker.xpos = cx_s + nx_s * (ball_r + 0.5)
-        tracker.ypos = cy_s + ny_s * (ball_r + 0.5)
+        # posiciona a bola na saída do segundo portal
+        bola.xpos = centro_saida_x + normal_saida_x * (raio_bola + 0.5)
+        bola.ypos = centro_saida_y + normal_saida_y * (raio_bola + 0.5)
 
-    def apply(self, tracker, ball_r):
-        """Checks whether the ball enters one of the portals and applies teleportation.
-
-        Returns True if teleportation occurred, False otherwise.
-        Must be called every animation loop step.
-        """
-        _, _, nx1, ny1, _, _ = self.p1
-        if self._in_zone(tracker, ball_r, self.p1):
-            if tracker.xvel * nx1 + tracker.yvel * ny1 > 0:  # ball entering p1
-                self._teleport(tracker, ball_r, self.p1, self.p2)
+    def apply(self, bola, raio_bola):
+        # verifica entrada no portal 1: produto escalar positivo significa movimento na direção da normal
+        _, _, normal1_x, normal1_y, _, _ = self.dados_portal1
+        if self._in_zone(bola, raio_bola, self.dados_portal1):
+            if bola.xvel * normal1_x + bola.yvel * normal1_y > 0:  # ball entering p1
+                self._teleport(bola, raio_bola, self.dados_portal1, self.dados_portal2)
                 return True
 
-        _, _, nx2, ny2, _, _ = self.p2
-        if self._in_zone(tracker, ball_r, self.p2):
-            if tracker.xvel * nx2 + tracker.yvel * ny2 > 0:  # ball entering p2
-                self._teleport(tracker, ball_r, self.p2, self.p1)
+        # verifica entrada no portal 2
+        #_, para ignorar as variáveis que não sao necessarias
+        _, _, normal2_x, normal2_y, _, _ = self.dados_portal2
+        if self._in_zone(bola, raio_bola, self.dados_portal2):
+            if bola.xvel * normal2_x + bola.yvel * normal2_y > 0:  # ball entering p2
+                self._teleport(bola, raio_bola, self.dados_portal2, self.dados_portal1)
                 return True
 
+        # nenhum portal ativado neste passo
         return False
