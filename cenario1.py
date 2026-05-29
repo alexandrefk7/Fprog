@@ -55,6 +55,9 @@ def cen1():
             asks_for_inputs = False
             has_fired = False
             win1.bind_all("<Key>", win1._onKey)
+            win1.master.lift()
+            win1.master.focus_force()
+            win1.update()
 
         key = win1.checkKey()
         point = win1.checkMouse()

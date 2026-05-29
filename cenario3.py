@@ -56,6 +56,9 @@ def cen3():
             asks_for_inputs = False
             player_ball_launch = False
             win3.bind_all("<Key>", win3._onKey)
+            win3.master.lift()
+            win3.master.focus_force()
+            win3.update()
 
         while asks_for_inputs == False:
             point = win3.checkMouse()
