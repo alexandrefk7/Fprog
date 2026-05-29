@@ -48,10 +48,10 @@ def cenario4():
     muro.draw(win)
 
     # botões de controlo dos portais, disparo e saída
-    btn_p1_up   = Button(win, Point(30,  165), 35, 8,  "Azul Cima")
-    btn_p1_dn   = Button(win, Point(30,  155), 35, 8,  "Azul Baixo")
-    btn_p2_esq  = Button(win, Point(260, 165), 35, 8,  "Lar Esq")
-    btn_p2_dir  = Button(win, Point(260, 155), 35, 8,  "Lar Dir")
+    btn_p1_up   = Button(win, Point(30,  158), 55, 8,  "Azul Cima")
+    btn_p1_dn   = Button(win, Point(30,  148), 55, 8,  "Azul Baixo")
+    btn_p2_esq  = Button(win, Point(260, 158), 55, 8,  "Lar Esq")
+    btn_p2_dir  = Button(win, Point(260, 148), 55, 8,  "Lar Dir")
     btn_fire    = Button(win, Point(150,  -2), 40, 8,  "ATIRAR")
     quit_button = Button(win, Point(xright_screen_limiter - 60, 170), 40, 15, "QUIT")
 
