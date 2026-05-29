@@ -1,5 +1,5 @@
 from graphics import *
-from engine import *
+from Projectiles import *
 from entities import *
 import time
 from gravar_trajetoria import *
@@ -57,7 +57,7 @@ def cen2():
                 tecla_pressionada = win2.getKey()
                 aviso_gravar.undraw()
                 if tecla_pressionada in ["G", "g"]:
-                    save_trajectory(win2, trajetoria_t, trajetoria_x, trajetoria_y, data_hora_inicio, 500, 500)
+                    save_trajectory(trajetoria_t, trajetoria_x, trajetoria_y, data_hora_inicio)
                 win2.close()
                 break
 
