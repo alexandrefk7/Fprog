@@ -1,8 +1,7 @@
 from graphics import *
 from entities import *
 from Projectiles import *
-from gravar_trajetoria import *
-from portais import PortalPair
+from entities import PortalPair
 import time
 
 
@@ -64,7 +63,7 @@ def cenario4():
         win,
         Point(PAREDE_X - 1, p1_cy), (1, 0),
         Point(p2_cx, p2_cy), (0.5, 1),
-        largura_portal=PORTAL_LARG
+        portal_width=PORTAL_LARG
     )
 
     # placar e jogador (cenário 1)

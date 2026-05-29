@@ -5,9 +5,13 @@ from entities import *
 
 import time
 from math import pi, cos
-from gravar_trajetoria import *
 
 
+"""
+cen1 — o cenário clássico de basquetebol: lança a bola em direção ao cesto com ângulo e velocidade definidos.
+o utilizador introduz os parâmetros de lançamento e dispara com a barra de espaço.
+acumula pontuação a cada cesto marcado e permite gravar a trajetória no final de cada lançamento.
+"""
 def cen1():
     xright_screen_limiter = 300
     ceiling = 180
@@ -34,6 +38,7 @@ def cen1():
     quit_button.activate()
 
     asks_for_inputs = True
+    # flags de estado do ciclo principal
     has_fired = False
     scored = False
     tracker = None
@@ -59,6 +64,7 @@ def cen1():
             win1.master.focus_force()
             win1.update()
 
+        # captura input do utilizador neste frame
         key = win1.checkKey()
         point = win1.checkMouse()
 
@@ -79,6 +85,7 @@ def cen1():
                 win1.close()
                 return
 
+        # disparo com barra de espaço
         if key == "space" and not has_fired:
             has_fired = True
             scored = False
@@ -120,6 +127,7 @@ def cen1():
                 scoreboard.message.undraw()
                 scoreboard.unecessary_cheers(win1)
 
+            # condição de paragem da bola
             if (abs(tracker.xvel) < 10 and abs(tracker.yvel) < 10) or tracker.xpos < -10:
                 tracker.destroy()
                 tracker = None

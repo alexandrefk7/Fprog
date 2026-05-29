@@ -1,13 +1,18 @@
 from Projectiles import *
 from entities import *
 from cen2 import cen2
-from gravar_trajetoria import *
 import time
 
 
+"""
+cen3 — cenário de basquetebol com parábola: a bola verde rola pela rampa e é lançada como projétil.
+o jogador também lança a sua bola laranja podendo intercetá-la ou tentar fazer o cesto diretamente.
+tem sistema de vidas e pontuação, e termina quando as vidas se esgotam.
+"""
 def cen3():
     asks_for_inputs = True
 
+    # flags de estado do jogo
     ball_is_thrown = False
     scored = False
     launcher_ball = None
@@ -60,6 +65,7 @@ def cen3():
             win3.master.focus_force()
             win3.update()
 
+        # loop de jogo ativo após receber os parâmetros de lançamento
         while asks_for_inputs == False:
             point = win3.checkMouse()
             key = win3.checkKey()
@@ -80,9 +86,11 @@ def cen3():
                     win3.close()
                     break
 
+            # espera pela tecla 's' para iniciar o movimento da bola verde
             if key == "s" and not has_started:
                 has_started = True
 
+            # lança a bola do jogador com barra de espaço
             if has_started and key == "space" and not player_ball_launch and player_ball is None:
                 hand_placement = stickman.ball.getCenter()
                 stickman.shoot(win3)
@@ -94,6 +102,7 @@ def cen3():
             # condição que, ao verificar que a bola já foi deix<da cair, realiza a verificação da posição x
             # da bola na parábola, de fomr a a perceber quando o trajeto acaba, alterando o tipo de movimento (rolador=>projétil)
 
+            # atualiza as bolas e verifica colisões enquanto o jogo está ativo
             if has_started:
                 if not ball_is_thrown:
                     parabola_ball.update_tracker(dt)
@@ -211,6 +220,7 @@ def cen3():
                         stickman.clear_arms()
                         stickman.create_arms(win3)
 
+            # verifica o fim de jogo após cada frame
             if lives == 0:
                 lifeboard.game_over(win3)
                 win3.update()

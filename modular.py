@@ -1,10 +1,15 @@
 from graphics import *
 from entities import Menu
-from cenario1e3 import cen1, cen3
+from cenario3 import cen3
 from cen2 import cen2
-from cen4 import cenario4
+from cenario4 import cenario4
+from cenario1 import cen1
 
-
+"""
+main — ponto de entrada do simulador; gere o menu principal e abre os cenários.
+cria a janela de menu a cada iteração e aguarda a escolha do utilizador.
+quando o utilizador sai do menu sem escolher, o ciclo termina e o programa encerra.
+"""
 def main():
     while True:
         # menu
@@ -13,17 +18,23 @@ def main():
         win_menu.setBackground("white")
 
         
+        # instancia o menu e desenha os elementos gráficos
         menu_importado = Menu(win_menu)
 
+        # lista usada como contentor mutável para capturar a escolha dentro da função interna
         cenario_escolhido = [None]
 
+        # substitui o placeholder do menu pelo comportamento real de abertura
         def abrir_cenario_real(num):
             cenario_escolhido[0] = num
             win_menu.close()
+        # injeta a função real no objeto menu
         menu_importado._abre_cenario = abrir_cenario_real
 
+        # corre o loop do menu até o utilizador sair ou escolher um cenário
         menu_importado.run()
 
+        # se saiu sem escolher cenário, termina o simulador
         if cenario_escolhido[0] is None:
             break
 
